@@ -78,6 +78,10 @@ echo "Domaini Girin:"
 read Domain
 echo Domain = \"$Domain\" >> creds.py
 
+echo "Salt:"
+read Salt
+echo Salt = \"$Salt\" >> creds.py
+
 
 
 echo "You can now reboot"
