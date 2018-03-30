@@ -8,21 +8,21 @@ apt-get install python3-dev
 apt-get install python-pip 
 apt-get install python3-pip
 
-pip2 install setuptools
-pip3 install setuptools
+#pip2 install setuptools
+#pip3 install setuptools
 
-pip2 install wheel
-pip3 install wheel
+#pip2 install wheel
+#pip3 install wheel
 
-pip2 install PyCrypto
-pip3 install PyCrypto
+#pip2 install PyCrypto
+#pip3 install PyCrypto
 
-pip3 install SpeechRecognition
+#pip3 install SpeechRecognition
 
 apt-get install portaudio19-dev python-all-dev python3-all-dev
 
-pip3 install pyaudio
-pip install pyaudio
+#pip3 install pyaudio
+#pip install pyaudio
 
 apt-get install libatlas-base-dev
 
