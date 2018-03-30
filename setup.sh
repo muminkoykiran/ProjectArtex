@@ -8,6 +8,8 @@ apt-get install python3-dev
 apt-get install python-pip 
 apt-get install python3-pip
 
+pip install -r requirements.txt
+
 #pip2 install setuptools
 #pip3 install setuptools
 
