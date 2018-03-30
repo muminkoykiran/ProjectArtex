@@ -40,7 +40,7 @@ wget -O swig-3.0.12.tar.gz https://downloads.sourceforge.net/project/swig/swig/s
 
 # extract and configure
 tar xf swig-3.0.12.tar.gz
-cd /swig-3.0.12
+cd swig-3.0.12/
 ./configure --prefix=/usr
 
 # build
