@@ -23,7 +23,7 @@ apt-get install libpcre3-dev
 
 # http://weegreenblobbie.com/?p=263
 # download swig 3.0.12
-wget -O swig-3.0.12.tar.gz https://downloads.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fswig%2Ffiles%2Fswig%2Fswig-3.0.12%2Fswig-3.0.12.tar.gz%2Fdownload&ts=1486782132&use_mirror=superb-sea2
+wget -O "swig-3.0.12.tar.gz" "https://downloads.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fswig%2Ffiles%2Fswig%2Fswig-3.0.12%2Fswig-3.0.12.tar.gz%2Fdownload&ts=1486782132&use_mirror=superb-sea2"
 
 # extract and configure
 tar xf swig-3.0.12.tar.gz
@@ -40,7 +40,6 @@ make install
 
 # check version reported
 swig -version
-
 #SWIG Version 3.0.12
 
 
@@ -62,7 +61,7 @@ cp -r resources $ARTEX_PATH
 
 cd ..
 
-sed 's/^from .  //' snowboydecoder.py
+sed -i 's/from . //g' snowboydecoder.py
 
 git clone https://github.com/duxingkei33/orangepi_PC_gpio_pyH3.git
 
