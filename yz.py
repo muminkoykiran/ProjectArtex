@@ -17,7 +17,6 @@ import hashlib
 import shutil
 import os
 import vlc
-from rgb import LedKontrol
 
 class bcolors:
     HEADER = '\033[95m'
@@ -31,6 +30,12 @@ class bcolors:
 
 #Debug
 debug = 1
+
+#Use GPIO PINS
+UsePins = 0
+
+if(UsePins):
+    from rgb import LedKontrol
 
 if debug: print("{}OKBLUE{}".format(bcolors.OKBLUE, bcolors.ENDC))
 if debug: print("{}OKGREEN{}".format(bcolors.OKGREEN, bcolors.ENDC))
@@ -57,8 +62,9 @@ def interrupt_callback():
 
 #signal.signal(signal.SIGINT, signal_handler)
 
-led = LedKontrol(7, 8, 9)
-led.off()
+if(UsePins):
+    led = LedKontrol(7, 8, 9)
+    led.off()
 
 r = sr.Recognizer()
 m = sr.Microphone()
@@ -154,15 +160,28 @@ def Web_Request(post_url, postData, cookie_save, WantEncryption):
         #s = requests.Session()
         if debug: print(sys.exc_info()[0])
 
-def Giris():
+def getSSL_KEY():
     global OpenSSLKey
     payload = {'sayfa': 'yz_CryptionKey'}
-    opensslpass = Web_Request(domain + 'index.php', payload, True, False)
+    opensslpass = Web_Request(Domain + 'index.php', payload, True, False)
     opensslpass = decrypt(opensslpass, OpenSSLKey)
     if debug: print("{}{}{}".format(bcolors.HEADER, opensslpass, bcolors.ENDC))
     OpenSSLKey = opensslpass
-    payload = {'pltfrm': 'orangepi', 'kullanici_adi': kullanici_adi, 'sifre': sifre, 'hatirla': 'on'}
-    output = Web_Request(domain + 'giris.php', payload, True, True).strip()
+
+def controle_SSL_KEY():
+    payload = {'sayfa': 'control_CryptionKey'}
+    output = Web_Request(Domain + 'index.php', payload, True, False)
+    if (output != ""):
+        global OpenSSLKey
+        opensslpass = decrypt(output, OpenSSLKey)
+        if debug: print("{}{}{}".format(bcolors.HEADER, opensslpass, bcolors.ENDC))
+        OpenSSLKey = opensslpass
+
+def Giris():
+    getSSL_KEY()
+
+    payload = {'pltfrm': 'orangepi', 'kullanici_adi': KullaniciAdi, 'sifre': Sifre, 'hatirla': 'on'}
+    output = Web_Request(Domain + 'giris.php', payload, True, True).strip()
 
     print(output)
 
@@ -172,7 +191,7 @@ def Giris():
     elif (output == "basarili"):
         if debug: print("{}Giris Islemi Basarili!{}".format(bcolors.HEADER, bcolors.ENDC))
         giris_durumu = "basarili"
-        led.magenta()
+        if UsePins: led.magenta()
         doWork("", False, False)
         t1.start()
         #burada mesaj gonderme fonksiyonunu calistiracak
@@ -187,13 +206,13 @@ def Giris():
         sys.exit(1)
     #else:
         #if debug: print("{}{]{}".format(bcolors.HEADER, output, bcolors.ENDC))
-    led.off()
+    if UsePins: led.off()
 
 def doWork(msg="", konus=True, dinle=True):
     if debug: print('doWork Calisti')
     if debug: print(msg)
     payload = {'msg': msg, 'pltfrm': 'orangepi'}
-    output = Web_Request(domain + 'message.php', payload, True, True)
+    output = Web_Request(Domain + 'message.php', payload, True, True)
     if debug: print(output)
     if debug: print('doWork Yanit Geldi')
     setAll(konus, dinle)
@@ -247,7 +266,7 @@ def setAll(konus=True, dinle=True):
     global glob_LastMessageTime, dir_path, p, i, s
     if debug: print('setAll Calisti')
     payload = {'all': '1'}
-    output = Web_Request(domain + 'message.php', payload, True, True)
+    output = Web_Request(Domain + 'message.php', payload, True, True)
     #if debug: print(output)
     if debug: print('setAll Yanit Geldi')
 
@@ -297,10 +316,10 @@ def setAll(konus=True, dinle=True):
 
                 if(not os.path.isfile(file_path)):
                     if debug: print("Ses dosyası bulunamadı, indiriliyor..")
-                    req = s.post(domain + "index.php?sayfa=ses&ses=" + ses_data + "&pltfrm=csharp&ses_api=" + ses_api, stream=True)
+                    req = s.post(Domain + "index.php?sayfa=ses&ses=" + ses_data + "&pltfrm=csharp&ses_api=" + ses_api, stream=True)
                     with open(file_path, 'wb') as f:
                         shutil.copyfileobj(req.raw, f)
-                led.blue()
+                if UsePins: led.blue()
                 #play_audio(file_path)
                 player.set_media(intance.media_new(file_path))
                 player.play()
@@ -310,6 +329,7 @@ def setAll(konus=True, dinle=True):
                 #th2.start()   
         except ValueError:
             if debug: print("bu bir json değil")
+            controle_SSL_KEY()
         
 
 def ses_gittimi(dinle=True):
@@ -321,7 +341,7 @@ def ses_gittimi(dinle=True):
     if(dinle == True):
         tetiklendi()
 
-    led.off()
+    if UsePins: led.off()
 
 def mesaj_ici_bildirim():
     while True:
@@ -329,9 +349,9 @@ def mesaj_ici_bildirim():
         time.sleep(1)
         if debug: print('mesaj_ici_bildirim Calisti')
         payload = {'sayfa': 'mesaj_ici_bildirim'}
-        output = Web_Request(domain + 'index.php', payload, True, True)
+        output = Web_Request(Domain + 'index.php', payload, True, True)
         #if debug: print('mesaj_ici_bildirim Yanit Geldi')
-        #led.yellow()
+        #if UsePins: led.yellow()
         if (output and output != None and output != ''):
             try:
                 if debug: print(output)
@@ -354,15 +374,16 @@ def mesaj_ici_bildirim():
                     glob_LastMessageTime = LastMessageTime
             except ValueError:
                 if debug: print("bu bir json değil")
+                controle_SSL_KEY()
 
 def tetiklendi():
     global dir_path
     try:
-        led.cyan()
+        if UsePins: led.cyan()
         snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
         if debug: print("{}Bir şeyler söyle!{}".format(bcolors.OKBLUE, bcolors.ENDC))
         with m as source: audio = r.listen(source, timeout=5)
-        led.yellow()
+        if UsePins: led.yellow()
         if debug: print("{}Yakaladım! Şimdi sesi tanımaya çalışıyorum...{}".format(bcolors.WARNING, bcolors.ENDC))
         try:
             # Tanımlama işlemi Google Ses Tanıma servisi kullanılarak gerçekleştiriliyor.
@@ -376,24 +397,24 @@ def tetiklendi():
                 if debug: print("{}P3Dediğin: {}{}".format(bcolors.WARNING, value, bcolors.ENDC))
                 data = format(value)
             if(data and data != None and data != ''):
-                led.green()
+                if UsePins: led.green()
                 doWork(data, True, True)
         except sr.UnknownValueError:
             if debug: print("{}Eyvah! Sesi yakalayamadım!{}".format(bcolors.FAIL, bcolors.ENDC))
-            led.red()
+            if UsePins: led.red()
         except sr.RequestError as e:
             if debug: print("{}Ah be! Google Ses Tanıma servisinden sonuç isteği yapılamadı; {}{}".format(bcolors.FAIL, e, bcolors.ENDC))
-            led.red()
+            if UsePins: led.red()
         finally:
             snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
-        #    led.off()
+        #    if UsePins: led.off()
     except sr.WaitTimeoutError:
         if debug: print("{}Zaman Aşımı Gerçekleşti{}".format(bcolors.FAIL, bcolors.ENDC))
-        led.red()
+        if UsePins: led.red()
     #except KeyboardInterrupt:
     #    pass
     #snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
-    led.off()
+    if UsePins: led.off()
 
 def detect_callback():
     detector.terminate()
