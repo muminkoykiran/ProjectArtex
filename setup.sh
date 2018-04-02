@@ -1,25 +1,26 @@
 #! /bin/bash
 
-#export ARTEX_PATH=/home/Artex
-export ARTEX_PATH=/home/muminkoykiran/Desktop/ProjectArtex
+export ARTEX_PATH=/home/$USER/ProjectArtex
+#export ARTEX_PATH=/home/$USER/Desktop/ProjectArtex
 
-apt-get install python-dev
-apt-get install python3-dev
+sudo apt-get install python-dev
+sudo apt-get install python3-dev
 
-apt-get install python-pip 
-apt-get install python3-pip
+sudo apt-get install python-pip 
+sudo apt-get install python3-pip
+sudo apt-get install vlc
 
-pip install -r requirements.txt
-pip3 install -r requirements.txt
+sudo pip install -r requirements.txt
+sudo pip3 install -r requirements.txt
 
-apt-get install portaudio19-dev python-all-dev python3-all-dev
+sudo apt-get install portaudio19-dev python-all-dev python3-all-dev
 
-apt-get install libatlas-base-dev
+sudo apt-get install libatlas-base-dev
 
 #apt-get install swig3.0 python-pyaudio python3-pyaudio sox
 
 # install prerequisite 
-apt-get install libpcre3-dev
+sudo apt-get install libpcre3-dev
 
 # http://weegreenblobbie.com/?p=263
 # download swig 3.0.12
@@ -42,7 +43,6 @@ make install
 swig -version
 #SWIG Version 3.0.12
 
-
 cd ..
 
 git clone https://github.com/Kitt-AI/snowboy.git
@@ -61,13 +61,13 @@ cp -r resources $ARTEX_PATH
 
 cd ..
 
-sed -i 's/from . //g' snowboydecoder.py
+# duzgun calismasini etkileyen snowbodecoder.py icerisindeki
+# from . import kisimi import kismi olarak duzeltiyor.
+sudo sed -i 's/from . //g' snowboydecoder.py
 
-git clone https://github.com/duxingkei33/orangepi_PC_gpio_pyH3.git
-
+# OrangePi uzerinde GPIO pinlerini kontrol etmek icin kullanılacak kutuphane
+git clone https://github.com/muminkoykiran/orangepi_PC_gpio_pyH3.git
 python orangepi_PC_gpio_pyH3/setup.py install 
-
-#wget --output-document vlc.py "http://git.videolan.org/?p=vlc/bindings/python.git;a=blob_plain;f=generated/vlc.py;hb=HEAD"
 
 #apt-get install libasound2-dev memcached python-pip python-alsaaudio vlc -y
 #cp initd_artex.sh /etc/init.d/ArtexPi
@@ -89,7 +89,6 @@ echo Domain = \"$Domain\" >> creds.py
 echo "Salt:"
 read Salt
 echo Salt = \"$Salt\" >> creds.py
-
 
 
 echo "Yeniden baslatabilirsiniz."
