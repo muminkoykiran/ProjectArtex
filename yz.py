@@ -60,8 +60,6 @@ def interrupt_callback():
     global interrupted
     return interrupted
 
-#signal.signal(signal.SIGINT, signal_handler)
-
 if(UsePins):
     led = LedKontrol(7, 8, 9)
     led.off()
@@ -396,7 +394,6 @@ def tetiklendi():
             if(data and data != None and data != ''):
                 if UsePins: led.green()
                 doWork(data, True, True)
-                snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
         except sr.UnknownValueError:
             if debug: print("{}Eyvah! Sesi yakalayamadım!{}".format(bcolors.FAIL, bcolors.ENDC))
             if UsePins: led.red()
