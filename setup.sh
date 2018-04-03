@@ -29,6 +29,9 @@ wget -O "swig-3.0.12.tar.gz" "https://downloads.sourceforge.net/project/swig/swi
 # extract and configure
 tar xf swig-3.0.12.tar.gz
 
+# delete tar.gz file
+rm swig-3.0.12.tar.gz
+
 cd swig-3.0.12/
 
 ./configure --prefix=/usr
@@ -39,7 +42,7 @@ make -j 4
 # install
 make install
 
-# check version reported
+# check version
 swig -version
 #SWIG Version 3.0.12
 
@@ -67,7 +70,11 @@ sudo sed -i 's/from . //g' snowboydecoder.py
 
 # OrangePi uzerinde GPIO pinlerini kontrol etmek icin kullanılacak kutuphane
 git clone https://github.com/muminkoykiran/orangepi_PC_gpio_pyH3.git
-python orangepi_PC_gpio_pyH3/setup.py install 
+python orangepi_PC_gpio_pyH3/setup.py install
+
+cd orangepi_PC_gpio_pyH3/examples/RgbLed
+cp rgbControlClass.py $ARTEX_PATH
+cd ../../..
 
 #apt-get install libasound2-dev memcached python-pip python-alsaaudio vlc -y
 #cp initd_artex.sh /etc/init.d/ArtexPi
