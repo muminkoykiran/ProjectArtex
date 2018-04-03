@@ -396,7 +396,7 @@ def tetiklendi():
             if(data and data != None and data != ''):
                 if UsePins: led.green()
                 doWork(data, True, True)
-            snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
+                snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
         except sr.UnknownValueError:
             if debug: print("{}Eyvah! Sesi yakalayamadım!{}".format(bcolors.FAIL, bcolors.ENDC))
             if UsePins: led.red()
