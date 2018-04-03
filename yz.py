@@ -396,21 +396,19 @@ def tetiklendi():
             if(data and data != None and data != ''):
                 if UsePins: led.green()
                 doWork(data, True, True)
+            snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
         except sr.UnknownValueError:
             if debug: print("{}Eyvah! Sesi yakalayamadım!{}".format(bcolors.FAIL, bcolors.ENDC))
             if UsePins: led.red()
+            snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
         except sr.RequestError as e:
             if debug: print("{}Ah be! Google Ses Tanıma servisinden sonuç isteği yapılamadı; {}{}".format(bcolors.FAIL, e, bcolors.ENDC))
             if UsePins: led.red()
-        finally:
             snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
-        #    if UsePins: led.off()
     except sr.WaitTimeoutError:
         if debug: print("{}Zaman Aşımı Gerçekleşti{}".format(bcolors.FAIL, bcolors.ENDC))
         if UsePins: led.red()
-    #except KeyboardInterrupt:
-    #    pass
-    #snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
+        snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     if UsePins: led.off()
 
 def detect_callback():
