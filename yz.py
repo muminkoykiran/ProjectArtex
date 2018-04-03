@@ -35,7 +35,7 @@ debug = 1
 UsePins = 0
 
 if(UsePins):
-    from rgb import LedKontrol
+    from rgbControlClass import LedKontrol
 
 if debug: print("{}OKBLUE{}".format(bcolors.OKBLUE, bcolors.ENDC))
 if debug: print("{}OKGREEN{}".format(bcolors.OKGREEN, bcolors.ENDC))
