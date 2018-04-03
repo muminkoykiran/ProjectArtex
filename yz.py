@@ -324,9 +324,6 @@ def setAll(konus=True, dinle=True):
                 player.set_media(intance.media_new(file_path))
                 player.play()
                 ses_gittimi(dinle)
-                #th2 = Thread(target = ses_gittimi)
-                #th2.setDaemon(True)
-                #th2.start()   
         except ValueError:
             if debug: print("bu bir json değil")
             controle_SSL_KEY()
@@ -433,6 +430,6 @@ if __name__ == "__main__":
 
     if debug: print('Artex Sözcüğü Dinleniyor... Çıkış için Ctrl+C basın')
 
-    # ana döngü
+    # Main Loop
     detector.start(detected_callback=detect_callback,interrupt_check=interrupt_callback,sleep_time=0.03)
     detector.terminate()
