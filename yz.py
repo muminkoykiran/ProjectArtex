@@ -302,30 +302,32 @@ def setAll(konus=True, dinle=True):
                     #        csharp_eval = UrlDecode(message.csharp_eval)
                 i += 1
             if(konus == True):
-                hash_object = hashlib.sha1(b''+ses_data.encode('utf-8').strip())
-                hash_dig = hash_object.hexdigest()
-                ses_path = dir_path + "/sesler/" + ses_api + "/"
-
-                if(not os.path.exists(ses_path)):
-                    if debug: print("Ses klasörü bulunamadı, oluşturuluyor..")
-                    os.makedirs(ses_path)
-
-                file_path = ses_path + hash_dig + ".mp3"
-
-                if(not os.path.isfile(file_path)):
-                    if debug: print("Ses dosyası bulunamadı, indiriliyor..")
-                    req = s.post(Domain + "index.php?sayfa=ses&ses=" + ses_data + "&pltfrm=csharp&ses_api=" + ses_api, stream=True)
-                    with open(file_path, 'wb') as f:
-                        shutil.copyfileobj(req.raw, f)
-                if UsePins: led.blue()
-                #play_audio(file_path)
-                player.set_media(intance.media_new(file_path))
-                player.play()
+                Talk(ses_data, ses_api)
                 ses_gittimi(dinle)
         except ValueError:
             if debug: print("bu bir json değil")
             controle_SSL_KEY()
-        
+
+def Talk(ses_data, ses_api):
+    hash_object = hashlib.sha1(b''+ses_data.encode('utf-8').strip())
+    hash_dig = hash_object.hexdigest()
+    ses_path = dir_path + "/sesler/" + ses_api + "/"
+
+    if(not os.path.exists(ses_path)):
+        if debug: print("Ses klasörü bulunamadı, oluşturuluyor..")
+        os.makedirs(ses_path)
+
+    file_path = ses_path + hash_dig + ".mp3"
+
+    if(not os.path.isfile(file_path)):
+        if debug: print("Ses dosyası bulunamadı, indiriliyor..")
+        req = s.post(Domain + "index.php?sayfa=ses&ses=" + ses_data + "&pltfrm=csharp&ses_api=" + ses_api, stream=True)
+        with open(file_path, 'wb') as f:
+            shutil.copyfileobj(req.raw, f)
+    if UsePins: led.blue()
+    #play_audio(file_path)
+    player.set_media(intance.media_new(file_path))
+    player.play()
 
 def ses_gittimi(dinle=True):
     global player
