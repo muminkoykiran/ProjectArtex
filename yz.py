@@ -35,7 +35,7 @@ debug = 1
 UsePins = 0
 
 if(UsePins):
-    from rgbControlClass import LedKontrol
+    from rgbControlClass import RGBControl
 
 if debug: print("{}OKBLUE{}".format(bcolors.OKBLUE, bcolors.ENDC))
 if debug: print("{}OKGREEN{}".format(bcolors.OKGREEN, bcolors.ENDC))
@@ -61,7 +61,7 @@ def interrupt_callback():
     return interrupted
 
 if(UsePins):
-    led = LedKontrol(7, 8, 9)
+    led = RGBControl(7, 8, 9)
     led.off()
 
 r = sr.Recognizer()
