@@ -118,17 +118,17 @@ def decrypt(encrypted, passphrase):
     aes = AES.new(key, AES.MODE_CBC, iv)
     return unpad(aes.decrypt(encrypted[16:]))
 
-OpenSSLKey = Salt.encode()
+Salt = Salt.encode()
 
 jar = requests.cookies.RequestsCookieJar()
 
 def Web_Request(post_url, postData, cookie_save, WantEncryption):
     try:
-        global s, OpenSSLKey, jar
+        global s, CryptionKey, jar
         payload = None
         if(WantEncryption == True):
             payload = urlencode(postData, quote_via=quote_plus)
-            sifrele = encrypt(payload, OpenSSLKey)
+            sifrele = encrypt(payload, CryptionKey)
             payload = {'_yzCryption': sifrele}
         else:
             payload = postData
@@ -158,25 +158,23 @@ def Web_Request(post_url, postData, cookie_save, WantEncryption):
         #s = requests.Session()
         if debug: print(sys.exc_info()[0])
 
-def getSSL_KEY():
-    global OpenSSLKey
+def getCryptionKey():
+    global CryptionKey
     payload = {'sayfa': 'yz_CryptionKey'}
-    opensslpass = Web_Request(Domain + 'index.php', payload, True, False)
-    opensslpass = decrypt(opensslpass, OpenSSLKey)
-    if debug: print("{}{}{}".format(bcolors.HEADER, opensslpass, bcolors.ENDC))
-    OpenSSLKey = opensslpass
+    output = Web_Request(Domain + 'index.php', payload, True, False)
+    CryptionKey = decrypt(output, Salt)
+    if debug: print("{}{}{}".format(bcolors.HEADER, CryptionKey, bcolors.ENDC))
 
-def controle_SSL_KEY():
+def controleCryptionKey():
     payload = {'sayfa': 'control_CryptionKey'}
     output = Web_Request(Domain + 'index.php', payload, True, False)
     if (output != ""):
-        global OpenSSLKey
-        opensslpass = decrypt(output, OpenSSLKey)
-        if debug: print("{}{}{}".format(bcolors.HEADER, opensslpass, bcolors.ENDC))
-        OpenSSLKey = opensslpass
+        global CryptionKey
+        CryptionKey = decrypt(output, Salt)
+        if debug: print("{}{}{}".format(bcolors.HEADER, CryptionKey, bcolors.ENDC))
 
 def Giris():
-    getSSL_KEY()
+    getCryptionKey()
 
     payload = {'pltfrm': 'orangepi', 'kullanici_adi': KullaniciAdi, 'sifre': Sifre, 'hatirla': 'on'}
     output = Web_Request(Domain + 'giris.php', payload, True, True).strip()
@@ -306,7 +304,7 @@ def setAll(konus=True, dinle=True):
                 ses_gittimi(dinle)
         except ValueError:
             if debug: print("bu bir json değil")
-            controle_SSL_KEY()
+            controleCryptionKey()
 
 def Talk(ses_data, ses_api):
     hash_object = hashlib.sha1(b''+ses_data.encode('utf-8').strip())
@@ -371,7 +369,7 @@ def mesaj_ici_bildirim():
                     glob_LastMessageTime = LastMessageTime
             except ValueError:
                 if debug: print("bu bir json değil")
-                controle_SSL_KEY()
+                controleCryptionKey()
 
 def tetiklendi():
     global dir_path
