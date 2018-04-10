@@ -81,6 +81,10 @@ cd ../../..
 #update-rc.d ArtexPi defaults
 #touch /var/log/artex.log
 
+echo "OrangePi Pinleri Kullanilsin mi?:"
+read UsePins
+echo UsePins = \"$UsePins\" >> creds.py
+
 echo "Kullanici Adinizi Girin:"
 read KullaniciAdi
 echo KullaniciAdi = \"$KullaniciAdi\" >> creds.py
