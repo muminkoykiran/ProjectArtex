@@ -31,9 +31,6 @@ class bcolors:
 #Debug
 debug = 1
 
-#Use GPIO PINS
-UsePins = 0
-
 if(UsePins):
     from rgbControlClass import RGBControl
 
