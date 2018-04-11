@@ -367,6 +367,7 @@ def mesaj_ici_bildirim():
             except ValueError:
                 if debug: print("bu bir json değil")
                 controleCryptionKey()
+                continue
 
 def tetiklendi():
     global dir_path
