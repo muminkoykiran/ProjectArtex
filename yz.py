@@ -165,7 +165,7 @@ def getCryptionKey():
 def controleCryptionKey():
     payload = {'sayfa': 'control_CryptionKey'}
     output = Web_Request(Domain + 'index.php', payload, True, False)
-    if (output != ""):
+    if (output != None and output != ""):
         global CryptionKey
         CryptionKey = decrypt(output, Salt)
         if debug: print("{}{}{}".format(bcolors.HEADER, CryptionKey, bcolors.ENDC))
