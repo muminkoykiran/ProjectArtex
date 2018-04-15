@@ -34,13 +34,13 @@ debug = 1
 if(UsePins):
     from rgbControlClass import RGBControl
 
-if debug: print("{}OKBLUE{}".format(bcolors.OKBLUE, bcolors.ENDC))
-if debug: print("{}OKGREEN{}".format(bcolors.OKGREEN, bcolors.ENDC))
-if debug: print("{}WARNING{}".format(bcolors.WARNING, bcolors.ENDC))
-if debug: print("{}FAIL{}".format(bcolors.FAIL, bcolors.ENDC))
-if debug: print("{}ENDC{}".format(bcolors.ENDC, bcolors.ENDC))
-if debug: print("{}BOLD{}".format(bcolors.BOLD, bcolors.ENDC))
-if debug: print("{}UNDERLINE{}".format(bcolors.UNDERLINE, bcolors.ENDC))
+#if debug: print("{}OKBLUE{}".format(bcolors.OKBLUE, bcolors.ENDC))
+#if debug: print("{}OKGREEN{}".format(bcolors.OKGREEN, bcolors.ENDC))
+#if debug: print("{}WARNING{}".format(bcolors.WARNING, bcolors.ENDC))
+#if debug: print("{}FAIL{}".format(bcolors.FAIL, bcolors.ENDC))
+#if debug: print("{}ENDC{}".format(bcolors.ENDC, bcolors.ENDC))
+#if debug: print("{}BOLD{}".format(bcolors.BOLD, bcolors.ENDC))
+#if debug: print("{}UNDERLINE{}".format(bcolors.UNDERLINE, bcolors.ENDC))
 
 interrupted = False
 
