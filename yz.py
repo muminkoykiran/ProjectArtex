@@ -203,7 +203,7 @@ def Giris():
 
 def doWork(msg="", konus=True, dinle=True):
     if debug: print('doWork Calisti')
-    if debug: print(msg)
+    if debug: print("Gönderilecek Mesaj: '" + msg + "'")
     payload = {'msg': msg, 'pltfrm': 'orangepi'}
     output = Web_Request(Domain + 'message.php', payload, True, True)
     if debug: print(output)
@@ -256,7 +256,7 @@ def play_audio(file):
 
 def setAll(konus=True, dinle=True):
     #global player
-    global glob_LastMessageTime, dir_path, p, i, s
+    global glob_LastMessageTime
     if debug: print('setAll Calisti')
     payload = {'all': '1'}
     output = Web_Request(Domain + 'message.php', payload, True, True)
@@ -281,15 +281,14 @@ def setAll(konus=True, dinle=True):
                 durum = ""
                 csharp_eval = ""
                 dt = message['time']
-
-                if ('msj' in message and message['msj'] != None and message['msj'] != ""):
-                    if debug: print(i, message['msj'], kendi_ismim, dt)
-
-
-                if (message['cvp'] != None and message['cvp'] != ""):
-                    if debug: print(i, message['cvp'], bot_ismi, dt)
-
+                
                 if (i == count):
+                    if ('msj' in message and message['msj'] != None and message['msj'] != ""):
+                        if debug: print(i, message['msj'], kendi_ismim, dt)
+
+                    if (message['cvp'] != None and message['cvp'] != ""):
+                        if debug: print(i, message['cvp'], bot_ismi, dt)
+
                     if debug: print('son mesaj bu!')
                     #if (message.platform == "csharp"):
                     #    durum = message.isdurumu
@@ -370,7 +369,6 @@ def mesaj_ici_bildirim():
                 continue
 
 def tetiklendi():
-    global dir_path
     try:
         if UsePins: led.cyan()
         snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
