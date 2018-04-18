@@ -310,7 +310,7 @@ def setAll(konus=True, dinle=True):
                 ses_gittimi(dinle)
         except ValueError:
             if debug: print("bu bir json değil")
-            controleCryptionKey()
+            getCryptionKey()
 
 def Talk(ses_data, ses_api):
     hash_object = hashlib.sha1(b''+ses_data.encode('utf-8').strip())
@@ -375,7 +375,7 @@ def mesaj_ici_bildirim():
                     glob_LastMessageTime = LastMessageTime
             except ValueError:
                 if debug: print("bu bir json değil")
-                controleCryptionKey()
+                getCryptionKey()
                 continue
 
 def tetiklendi():
