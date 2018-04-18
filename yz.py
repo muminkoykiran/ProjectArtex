@@ -28,6 +28,9 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+CURSOR_UP_ONE = '\x1b[1A'
+ERASE_LINE = '\x1b[2K'
+
 #Debug
 debug = 1
 
@@ -61,8 +64,17 @@ if(UsePins):
     led = RGBControl(7, 8, 9)
     led.off()
 
+def delete_last_lines(n=1):
+    for _ in range(n):
+        sys.stdout.write(CURSOR_UP_ONE)
+        sys.stdout.write(ERASE_LINE)
+
 r = sr.Recognizer()
 m = sr.Microphone()
+
+delete_last_lines(100)
+print("....")
+delete_last_lines()
 
 if debug: print("Biraz sessiz kalın, Lütfen...")
 with m as source: r.adjust_for_ambient_noise(source)
@@ -71,8 +83,6 @@ if debug: print("Minimum threshold enerjisi {} olarak tanımlandı.".format(r.en
 dir_path = os.path.dirname(os.path.realpath(__file__))
 glob_LastMessageTime = ''
 playlists = set(['pls', 'm3u', 'ash'])
-
-s = requests.Session()
 
 model = sys.argv[1]
 detector = snowboydecoder.HotwordDetector(model, sensitivity=0.4)
@@ -118,7 +128,7 @@ def decrypt(encrypted, passphrase):
 Salt = Salt.encode()
 
 jar = requests.cookies.RequestsCookieJar()
-
+s = requests.Session()
 def Web_Request(post_url, postData, cookie_save, WantEncryption):
     try:
         global s, CryptionKey, jar
@@ -405,6 +415,9 @@ def tetiklendi():
     if UsePins: led.off()
 
 def detect_callback():
+    delete_last_lines()
+    print("...")
+    delete_last_lines()
     detector.terminate()
     tetiklendi()
     if debug: print('Artex Sözcüğü Dinleniyor... Çıkış için Ctrl+C basın')
