@@ -377,11 +377,15 @@ def mesaj_ici_bildirim():
                 if debug: print("bu bir json değil")
                 getCryptionKey()
                 continue
+def DING():
+    if UsePins: led.cyan()
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
 
 def tetiklendi():
     try:
-        if UsePins: led.cyan()
-        snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
+        threadDING = Thread(target = DING)
+        threadDING.start()
+        
         if debug: print("{}Bir şeyler söyle!{}".format(bcolors.OKBLUE, bcolors.ENDC))
         with m as source: audio = r.listen(source, timeout=5)
         if UsePins: led.yellow()
