@@ -340,7 +340,9 @@ def ses_gittimi(dinle=True):
         pass
     
     if(dinle == True):
-        tetiklendi()
+        tetiklendiThread = Thread(target = tetiklendi)
+        tetiklendiThread.start()
+        DING()
 
     if UsePins: led.off()
 
@@ -382,10 +384,7 @@ def DING():
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
 
 def tetiklendi():
-    try:
-        threadDING = Thread(target = DING)
-        threadDING.start()
-        
+    try:        
         if debug: print("{}Bir şeyler söyle!{}".format(bcolors.OKBLUE, bcolors.ENDC))
         with m as source: audio = r.listen(source, timeout=5)
         if UsePins: led.yellow()
@@ -423,7 +422,9 @@ def detect_callback():
     print("...")
     delete_last_lines()
     detector.terminate()
-    tetiklendi()
+    tetiklendiThread = Thread(target = tetiklendi)
+    tetiklendiThread.start()
+    DING()
     if debug: print('Artex Sözcüğü Dinleniyor... Çıkış için Ctrl+C basın')
     detector.start(detected_callback=detect_callback, sleep_time=0.03)
 
