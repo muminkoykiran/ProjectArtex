@@ -357,7 +357,6 @@ def mesaj_ici_bildirim():
             #if UsePins: led.yellow()
             if (output and output != None and output != ''):
                 try:
-                    if debug: print(output)
                     jsonObject = json.loads(output)
                     LastMessageTime = jsonObject['LastMessageTime']
                     konus = False
@@ -371,7 +370,6 @@ def mesaj_ici_bildirim():
                                 dinle = False
     
                             if debug: print('mesaj_ici_bildirim gelen yanit > 0 oldugundan setAll calistirildi.')
-                            if debug: print(output)
                             setAll(konus, dinle)
                     else:
                         glob_LastMessageTime = LastMessageTime
