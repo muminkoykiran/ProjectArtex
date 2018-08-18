@@ -340,9 +340,8 @@ def ses_gittimi(dinle=True):
         pass
     
     if(dinle == True):
-        tetiklendiThread = Thread(target = tetiklendi)
-        tetiklendiThread.start()
         DING()
+        tetiklendi()
 
     if UsePins: led.off()
 
