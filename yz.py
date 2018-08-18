@@ -352,33 +352,38 @@ def mesaj_ici_bildirim():
         time.sleep(1)
         if debug: print('mesaj_ici_bildirim Calisti')
         payload = {'sayfa': 'mesaj_ici_bildirim'}
-        output = Web_Request(Domain + 'index.php', payload, True, True)
-        #if debug: print('mesaj_ici_bildirim Yanit Geldi')
-        #if UsePins: led.yellow()
-        if (output and output != None and output != ''):
-            try:
-                if debug: print(output)
-                jsonObject = json.loads(output)
-                LastMessageTime = jsonObject['LastMessageTime']
-                konus = False
-                dinle = True
-                if (glob_LastMessageTime != None and glob_LastMessageTime != ''):
-                    if (glob_LastMessageTime != LastMessageTime):
-                        glob_LastMessageTime = LastMessageTime;
-                        if debug: print(output)
-                        if ('kind' in jsonObject and jsonObject['kind'] == 'bildirim'):
-                            konus = True
-                            dinle = False
-
-                        if debug: print('mesaj_ici_bildirim gelen yanit > 0 oldugundan setAll calistirildi.')
-                        if debug: print(output)
-                        setAll(konus, dinle)
-                else:
-                    glob_LastMessageTime = LastMessageTime
-            except ValueError:
-                if debug: print("bu bir json değil")
-                getCryptionKey()
-                continue
+        try:
+            output = Web_Request(Domain + 'index.php', payload, True, True)
+            #if debug: print('mesaj_ici_bildirim Yanit Geldi')
+            #if UsePins: led.yellow()
+            if (output and output != None and output != ''):
+                try:
+                    if debug: print(output)
+                    jsonObject = json.loads(output)
+                    LastMessageTime = jsonObject['LastMessageTime']
+                    konus = False
+                    dinle = True
+                    if (glob_LastMessageTime != None and glob_LastMessageTime != ''):
+                        if (glob_LastMessageTime != LastMessageTime):
+                            glob_LastMessageTime = LastMessageTime;
+                            if debug: print(output)
+                            if ('kind' in jsonObject and jsonObject['kind'] == 'bildirim'):
+                                konus = True
+                                dinle = False
+    
+                            if debug: print('mesaj_ici_bildirim gelen yanit > 0 oldugundan setAll calistirildi.')
+                            if debug: print(output)
+                            setAll(konus, dinle)
+                    else:
+                        glob_LastMessageTime = LastMessageTime
+                except ValueError:
+                    if debug: print("bu bir json değil")
+                    getCryptionKey()
+                    continue
+        except (RuntimeError, TypeError, NameError):
+            if debug: print("bir hata oldu sanki :))")
+            getCryptionKey()
+            continue
 def DING():
     if UsePins: led.cyan()
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
