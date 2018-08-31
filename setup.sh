@@ -77,9 +77,9 @@ cp rgbControlClass.py $ARTEX_PATH
 cd ../../..
 
 #apt-get install libasound2-dev memcached python-pip python-alsaaudio vlc -y
-#cp initd_artex.sh /etc/init.d/ArtexPi
-#update-rc.d ArtexPi defaults
-#touch /var/log/artex.log
+cp initd_artex.sh /etc/init.d/ArtexPi
+update-rc.d ArtexPi defaults
+touch /var/log/artex.log
 
 echo "OrangePi Pinleri Kullanilsin mi?:"
 read UsePins
