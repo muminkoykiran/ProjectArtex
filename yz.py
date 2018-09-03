@@ -349,7 +349,7 @@ def mesaj_ici_bildirim():
     while True:
         global glob_LastMessageTime
         time.sleep(1)
-        if debug: print('mesaj_ici_bildirim Calisti')
+        #if debug: print('mesaj_ici_bildirim Calisti')
         payload = {'sayfa': 'mesaj_ici_bildirim'}
         try:
             output = Web_Request(Domain + 'index.php', payload, True, True)
