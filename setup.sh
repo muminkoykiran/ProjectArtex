@@ -13,6 +13,9 @@ sudo apt-get install vlc
 sudo pip install -r requirements.txt
 sudo pip3 install -r requirements.txt
 
+sudo pip install --upgrade pip
+sudo pip3 install --upgrade pip
+
 sudo apt-get install portaudio19-dev python-all-dev python3-all-dev
 
 sudo apt-get install libatlas-base-dev
