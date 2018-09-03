@@ -10,11 +10,11 @@ sudo apt-get install python-pip
 sudo apt-get install python3-pip
 sudo apt-get install vlc
 
-sudo pip install -r requirements.txt
-sudo pip3 install -r requirements.txt
-
 sudo pip install --upgrade pip
 sudo pip3 install --upgrade pip
+
+sudo pip install -r requirements.txt
+sudo pip3 install -r requirements.txt
 
 sudo apt-get install portaudio19-dev python-all-dev python3-all-dev
 
