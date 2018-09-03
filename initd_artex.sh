@@ -22,7 +22,7 @@ start)
 
 stop)
     echo "Stopping Artex.."
-    pkill -SIGINT ^yz.py$
+    pkill -9 -f yz.py
 ;;
 
 restart|force-reload)
