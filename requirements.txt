@@ -4,3 +4,4 @@ PyCrypto
 SpeechRecognition
 pyaudio
 python-vlc
+pyA20
