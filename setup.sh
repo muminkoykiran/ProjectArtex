@@ -9,6 +9,7 @@ sudo apt-get install python3-dev
 sudo apt-get install python-pip 
 sudo apt-get install python3-pip
 sudo apt-get install vlc
+sudo apt-get install flac
 
 sudo pip install --upgrade pip
 sudo pip3 install --upgrade pip
