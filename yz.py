@@ -367,6 +367,7 @@ def mesaj_ici_bildirim():
                             if debug: print(output)
                             if ('kind' in jsonObject and jsonObject['kind'] == 'bildirim'):
                                 konus = True
+                            if ('WaitForResponse' not in jsonObject):
                                 dinle = False
     
                             if debug: print('mesaj_ici_bildirim gelen yanit > 0 oldugundan setAll calistirildi.')
