@@ -1,0 +1,16 @@
+[Unit]
+Description=ArtexPi on Boot
+Documentation=https://github.com/muminkoykiran/ProjectArtex
+ConditionFileIsExecutable=/usr/local/bin/Artex
+
+[Service]
+Type=forking
+Restart=on-failure
+RestartSec=5
+ExecStart=/usr/local/bin/Artex start
+ExecStop=/usr/local/bin/Artex stop
+ExecReload=/usr/local/bin/Artex restart
+
+[Install]
+#WantedBy=multi-user.target
+WantedBy=default.target
