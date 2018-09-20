@@ -1,12 +1,12 @@
 # ProjectArtex
 Artex virtual assistant service on Orange Pi
 
-Kurulum için:
+For Installation:
 
-cd /home/$USER
+cd /opt/
 
 git clone https://github.com/muminkoykiran/ProjectArtex.git
 
-cd /home/$USER/ProjectArtex
+cd /opt/ProjectArtex
 
 ./setup.sh
