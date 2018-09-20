@@ -1,0 +1,25 @@
+[Unit]
+Description=Artex start on Boot
+Documentation=https://github.com/muminkoykiran/ProjectArtex
+
+Wants=network.target network-online.target
+Requires=sound.target
+After=network.target network-online.target sound.target
+
+[Service]
+Type=forking
+Restart=on-failure
+ExecStart=/opt/ProjectArtex/Artex start
+ExecStop=/opt/ProjectArtex/Artex stop
+ExecReload=/opt/ProjectArtex/Artex restart
+
+User=root
+Group=root
+
+ProtectHome=true
+RuntimeDirectory=Artex
+RuntimeDirectoryMode=0770
+WorkingDirectory=/opt/ProjectArtex/
+
+[Install]
+WantedBy=default.target
