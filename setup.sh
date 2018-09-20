@@ -81,12 +81,13 @@ cp rgbControlClass.py $ARTEX_PATH
 cd ../../..
 
 #apt-get install libasound2-dev memcached python-pip python-alsaaudio vlc -y
-#cp initd_artex.sh /etc/init.d/ArtexPi
-cp initd_artex.sh /usr/local/bin/Artex
-sudo chmod +x /usr/local/bin/Artex
-#update-rc.d ArtexPi defaults
-cp $ARTEX_PATH/resources/ArtexPi.service /usr/lib/systemd/user/
-systemctl --user enable ArtexPi.service
+
+sudo chmod +x $ARTEX_PATH/Artex
+
+cp $ARTEX_PATH/resources/Artex.service /etc/systemd/system/
+cp $ARTEX_PATH/resources/usergroup-root.conf /etc/systemd/system/Artex.service.d/
+systemctl daemon-reload
+systemctl enable Artex.service
 
 touch /var/log/artex.log
 
