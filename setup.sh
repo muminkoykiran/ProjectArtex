@@ -1,7 +1,7 @@
 #! /bin/bash
 
-export ARTEX_PATH=/home/$USER/ProjectArtex
-#export ARTEX_PATH=/home/$USER/Desktop/ProjectArtex
+export ARTEX_PATH=/opt/ProjectArtex
+#export ARTEX_PATH=/home/$USER/ProjectArtex
 
 sudo apt-get install python-dev
 sudo apt-get install python3-dev
