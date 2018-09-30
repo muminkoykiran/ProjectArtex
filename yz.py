@@ -168,13 +168,13 @@ def Web_Request(post_url, postData, cookie_save, WantEncryption):
 def getCryptionKey():
     global CryptionKey
     payload = {'sayfa': 'yz_CryptionKey'}
-    output = Web_Request(Domain + 'index.php', payload, True, False)
+    output = Web_Request(Domain + 'main', payload, True, False)
     CryptionKey = decrypt(output, Salt)
     if debug: print("{}{}{}".format(bcolors.HEADER, CryptionKey, bcolors.ENDC))
 
 def controleCryptionKey():
     payload = {'sayfa': 'control_CryptionKey'}
-    output = Web_Request(Domain + 'index.php', payload, True, False)
+    output = Web_Request(Domain + 'main', payload, True, False)
     if (output != None and output != ""):
         global CryptionKey
         CryptionKey = decrypt(output, Salt)
@@ -184,7 +184,7 @@ def Giris():
     getCryptionKey()
 
     payload = {'pltfrm': 'orangepi', 'kullanici_adi': KullaniciAdi, 'sifre': Sifre, 'hatirla': 'on'}
-    output = Web_Request(Domain + 'giris.php', payload, True, True).strip()
+    output = Web_Request(Domain + 'login', payload, True, True).strip()
 
     print(output)
 
@@ -325,7 +325,7 @@ def Talk(ses_data, ses_api):
 
     if(not os.path.isfile(file_path)):
         if debug: print("Ses dosyası bulunamadı, indiriliyor..")
-        req = s.post(Domain + "index.php?sayfa=ses&ses=" + ses_data + "&pltfrm=csharp&ses_api=" + ses_api, stream=True)
+        req = s.post(Domain + "main?sayfa=ses&ses=" + ses_data + "&pltfrm=csharp&ses_api=" + ses_api, stream=True)
         with open(file_path, 'wb') as f:
             shutil.copyfileobj(req.raw, f)
     if UsePins: led.blue()
@@ -352,7 +352,7 @@ def mesaj_ici_bildirim():
         #if debug: print('mesaj_ici_bildirim Calisti')
         payload = {'sayfa': 'mesaj_ici_bildirim'}
         try:
-            output = Web_Request(Domain + 'index.php', payload, True, True)
+            output = Web_Request(Domain + 'main', payload, True, True)
             #if debug: print('mesaj_ici_bildirim Yanit Geldi')
             #if UsePins: led.yellow()
             if (output and output != None and output != ''):
