@@ -183,7 +183,7 @@ def controleCryptionKey():
 def Giris():
     getCryptionKey()
 
-    payload = {'pltfrm': 'orangepi', 'kullanici_adi': KullaniciAdi, 'sifre': Sifre, 'hatirla': 'on'}
+    payload = {'pltfrm': 'orangepi', 'Username': KullaniciAdi, 'Password': Sifre, 'Remember': 'on'}
     output = Web_Request(Domain + 'login', payload, True, True).strip()
 
     print(output)
