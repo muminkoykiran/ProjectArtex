@@ -99,9 +99,9 @@ echo "Kullanici Adinizi Girin:"
 read KullaniciAdi
 echo KullaniciAdi = \"$KullaniciAdi\" >> creds.py
 
-echo "Sifrenizi Girin:"
-read Sifre
-echo Sifre = \"$Sifre\" >> creds.py
+echo "Parolanizi Girin:"
+read Parola
+echo Parola = \"$Parola\" >> creds.py
 
 echo "Domaini Girin:"
 read Domain

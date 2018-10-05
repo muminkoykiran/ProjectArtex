@@ -190,13 +190,13 @@ def controleCryptionKey():
 def Giris():
     getCryptionKey()
 
-    payload = {'pltfrm': 'orangepi', 'Username': KullaniciAdi, 'Password': Sifre, 'Remember': 'on'}
+    payload = {'pltfrm': 'orangepi', 'Username': KullaniciAdi, 'Password': Parola, 'Remember': 'on'}
     output = Web_Request(Domain + 'login', payload, True, True).strip()
 
     logger.debug(output)
 
     if (output == "yanlis"):
-        logger.error("Kullanici Adi ve Sifre Yanlis!")
+        logger.error("Kullanici Adi veya Parola Yanlis!")
         sys.exit(1)
     elif (output == "basarili"):
         logger.debug("Giris Islemi Basarili!")
@@ -219,60 +219,13 @@ def Giris():
     if UsePins: led.off()
 
 def doWork(msg="", konus=True, dinle=True):
-    logger.info('doWork Calisti')
-    logger.info("Gönderilecek Mesaj: '" + msg + "'")
+    logger.info("doWork Calisti, Gonderilecek Mesaj: '" + msg + "'")
     payload = {'msg': msg, 'pltfrm': 'orangepi'}
     output = Web_Request(Domain + 'message.php', payload, True, True)
-    logger.info(output)
-    logger.info('doWork Yanit Geldi')
+    logger.info('doWork Yanit Geldi -> ' + output)
     setAll(konus, dinle)
 
-
-intance = vlc.Instance()
-player = vlc.MediaPlayer()
-mediaP = ''
-def play_audio(file):
-    global intance, player, mediaP
-    logger.debug("Play_Audio Request for:{}".format(file))
-    ext = (file.rpartition(".")[2])[:3]
-    #subprocess.Popen(['mpg123', '-q', '{}{}'.format(path, file)]).wait()
-    #i = vlc.Instance('--aout=alsa', '--alsa-audio-device=hw:CARD=audiocodec,DEV=0')
-    mrl = "{}".format(file)
-    logger.debug(ext)
-
-    if mrl != "":
-        if ext in playlists:
-            #Replaced code here
-            
-            event_manager = player.event_manager() # Attach event to player (next 3 lines)
-            event = vlc.EventType()
-            event_manager.event_attach(event.MediaPlayerEndReached, end_reached)
-            mediaP = intance.media_new(mrl) # Create new media
-            player.set_media(mediaP) # Set URL as the player's media
-            mediaP.release()
-            player.play() # play it
-            while flag == 0: # Wait until the end of the first media has been reached.$
-                time.sleep(0.5)
-                logger.debug("{}Loading Playlist...{}")
-            sub_list = mediaP.subitems() # .. and get the sub itmes in the playlist
-            sub_list.lock()
-            sub = sub_list.item_at_index(0) # Get the first sub item
-            sub_list.unlock()
-            sub_list.release()
-            player.set_media(sub) # Set it as the new media in the player
-            #End of replaced Code
-        else:
-            mediaP = intance.media_new(mrl)
-            player = intance.media_player_new()
-            player.set_media(mediaP)
-            player.audio_set_volume(100)
-            logger.debug("{}Requesting Stream...{}")
-        player.play()
-    else:
-        logger.debug("(play_audio) mrl = Nothing!")
-
 def setAll(konus=True, dinle=True):
-    #global player
     global glob_LastMessageTime
     logger.info('setAll Calisti')
     payload = {'all': '1'}
@@ -282,10 +235,10 @@ def setAll(konus=True, dinle=True):
 
     if (output and output != None and output != ''):
         try:
-            dizi = json.loads(output)
+            array = json.loads(output)
 
-            datas = dizi['datas']
-            messages = dizi['messages']
+            datas = array['datas']
+            messages = array['messages']
             kendi_ismim = datas['kendi_ismim']
             bot_ismi = datas['bot_ismi']
             ses_ac_kapa = datas['ses_ac_kapa']
@@ -306,7 +259,6 @@ def setAll(konus=True, dinle=True):
                     if (message['cvp'] != None and message['cvp'] != ""):
                         logger.info(bot_ismi + "-> " + message['cvp'] + " | " + dt)
 
-                    logger.info('son mesaj bu!')
                     #if (message.platform == "csharp"):
                     #    durum = message.isdurumu
                     #    if (message.csharp_eval != "" and message.csharp_eval != None):
@@ -318,6 +270,9 @@ def setAll(konus=True, dinle=True):
         except ValueError:
             logger.error("bu bir json değil")
             getCryptionKey()
+
+intance = vlc.Instance()
+player = vlc.MediaPlayer()
 
 def Talk(ses_data, ses_api):
     hash_object = hashlib.sha1(b''+ses_data.encode('utf-8').strip())
@@ -336,7 +291,6 @@ def Talk(ses_data, ses_api):
         with open(file_path, 'wb') as f:
             shutil.copyfileobj(req.raw, f)
     if UsePins: led.blue()
-    #play_audio(file_path)
     player.set_media(intance.media_new(file_path))
     player.play()
 
@@ -384,11 +338,11 @@ def mesaj_ici_bildirim():
                 except ValueError:
                     logger.error("bu bir json değil")
                     getCryptionKey()
-                    continue
+                    pass
         except (RuntimeError, TypeError, NameError):
             logger.error("bir hata oldu sanki :))")
             getCryptionKey()
-            continue
+            pass
 def DING():
     if UsePins: led.cyan()
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
