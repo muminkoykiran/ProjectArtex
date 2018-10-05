@@ -17,39 +17,46 @@ import hashlib
 import shutil
 import os
 import vlc
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-CURSOR_UP_ONE = '\x1b[1A'
-ERASE_LINE = '\x1b[2K'
+import logging
 
 #Debug
 debug = 1
 
+if debug:
+	log_level = logging.DEBUG
+else:
+	log_level = logging.getLevelName('INFO')
+
+# Logger oluşturalım.
+logger = logging.getLogger("ProjectArtex")
+logger.setLevel(log_level) # Uygulamız şuanda çalışıyor.
+
+# Consol yapısını oluşturduk
+ch = logging.StreamHandler()
+ch.setLevel(log_level) # Hata ayıklama tipini belirledik.
+
+formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+ 
+# Konsol Formatı
+ch.setFormatter(formatter)
+ 
+# logger için konsol
+logger.addHandler(ch)
+ 
+# Log kayıt yolunu belirleme
+logging.basicConfig(filename='artex.log', filemode='w', level=log_level)
+
+CURSOR_UP_ONE = '\x1b[1A'
+ERASE_LINE = '\x1b[2K'
+
 if(UsePins):
     from rgbControlClass import RGBControl
-
-#if debug: print("{}OKBLUE{}".format(bcolors.OKBLUE, bcolors.ENDC))
-#if debug: print("{}OKGREEN{}".format(bcolors.OKGREEN, bcolors.ENDC))
-#if debug: print("{}WARNING{}".format(bcolors.WARNING, bcolors.ENDC))
-#if debug: print("{}FAIL{}".format(bcolors.FAIL, bcolors.ENDC))
-#if debug: print("{}ENDC{}".format(bcolors.ENDC, bcolors.ENDC))
-#if debug: print("{}BOLD{}".format(bcolors.BOLD, bcolors.ENDC))
-#if debug: print("{}UNDERLINE{}".format(bcolors.UNDERLINE, bcolors.ENDC))
 
 interrupted = False
 
 if len(sys.argv) == 1:
-    if debug: print("HATA: özel bir model ismi gerekiyor")
-    if debug: print("ÖRNEK KULLANIM: python3 yz.py modeldosyasi.model")
+    logger.error("HATA: özel bir model ismi gerekiyor")
+    logger.info("ÖRNEK KULLANIM: python3 yz.py modeldosyasi.model")
     sys.exit(-1)
 
 def signal_handler(signal, frame):
@@ -72,13 +79,13 @@ def delete_last_lines(n=1):
 r = sr.Recognizer()
 m = sr.Microphone()
 
-delete_last_lines(100)
-print("....")
-delete_last_lines()
+#delete_last_lines(100)
+#print("....")
+#delete_last_lines()
 
-if debug: print("Biraz sessiz kalın, Lütfen...")
+logger.warning("Biraz sessiz kalın, Lütfen...")
 with m as source: r.adjust_for_ambient_noise(source)
-if debug: print("Minimum threshold enerjisi {} olarak tanımlandı.".format(r.energy_threshold))
+logger.info("Minimum threshold enerjisi {} olarak tanımlandı.".format(r.energy_threshold))
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 glob_LastMessageTime = ''
@@ -146,31 +153,31 @@ def Web_Request(post_url, postData, cookie_save, WantEncryption):
         out = None
         if(req.status_code == 200):
             out = req.text
-            #if debug: print(out)
+            #logger.debug(out)
             if(not out or out == ''):
                 out = None
 
         return out
     except requests.exceptions.Timeout as e:
-        if debug: print(e)
+        logger.warning(e)
     except requests.exceptions.TooManyRedirects as e:
-        if debug: print(e)
+        logger.warning(e)
     except requests.exceptions.HTTPError as e:
-        if debug: print(e)
+        logger.error(e)
         #sys.exit(1)
     except requests.exceptions.RequestException as e:
-        if debug: print(e)
+        logger.error(e)
         #sys.exit(1)
     except:
         #s = requests.Session()
-        if debug: print(sys.exc_info()[0])
+        logger.error(sys.exc_info()[0])
 
 def getCryptionKey():
     global CryptionKey
     payload = {'sayfa': 'yz_CryptionKey'}
     output = Web_Request(Domain + 'main', payload, True, False)
     CryptionKey = decrypt(output, Salt)
-    if debug: print("{}{}{}".format(bcolors.HEADER, CryptionKey, bcolors.ENDC))
+    logger.debug(CryptionKey)
 
 def controleCryptionKey():
     payload = {'sayfa': 'control_CryptionKey'}
@@ -178,7 +185,7 @@ def controleCryptionKey():
     if (output != None and output != ""):
         global CryptionKey
         CryptionKey = decrypt(output, Salt)
-        if debug: print("{}{}{}".format(bcolors.HEADER, CryptionKey, bcolors.ENDC))
+        logger.debug(CryptionKey)
 
 def Giris():
     getCryptionKey()
@@ -186,13 +193,13 @@ def Giris():
     payload = {'pltfrm': 'orangepi', 'Username': KullaniciAdi, 'Password': Sifre, 'Remember': 'on'}
     output = Web_Request(Domain + 'login', payload, True, True).strip()
 
-    print(output)
+    logger.debug(output)
 
     if (output == "yanlis"):
-        if debug: print("{}Kullanici Adi ve Sifre Yanlis!{}".format(bcolors.HEADER, bcolors.ENDC))
+        logger.error("Kullanici Adi ve Sifre Yanlis!")
         sys.exit(1)
     elif (output == "basarili"):
-        if debug: print("{}Giris Islemi Basarili!{}".format(bcolors.HEADER, bcolors.ENDC))
+        logger.debug("Giris Islemi Basarili!")
         giris_durumu = "basarili"
         if UsePins: led.magenta()
         doWork("", False, False)
@@ -205,19 +212,19 @@ def Giris():
         #Console.WriteLine("aracxml icindeki th_oto_soru calistirildi.")
         #oto_soru()
     elif (output == "yok"):
-        if debug: print("{}Boyle Bir Kullanici Yok!{}".format(bcolors.HEADER, bcolors.ENDC))
+        logger.error("Boyle Bir Kullanici Yok!")
         sys.exit(1)
     #else:
-        #if debug: print("{}{]{}".format(bcolors.HEADER, output, bcolors.ENDC))
+        #logger.debug(output)
     if UsePins: led.off()
 
 def doWork(msg="", konus=True, dinle=True):
-    if debug: print('doWork Calisti')
-    if debug: print("Gönderilecek Mesaj: '" + msg + "'")
+    logger.info('doWork Calisti')
+    logger.info("Gönderilecek Mesaj: '" + msg + "'")
     payload = {'msg': msg, 'pltfrm': 'orangepi'}
     output = Web_Request(Domain + 'message.php', payload, True, True)
-    if debug: print(output)
-    if debug: print('doWork Yanit Geldi')
+    logger.info(output)
+    logger.info('doWork Yanit Geldi')
     setAll(konus, dinle)
 
 
@@ -226,12 +233,12 @@ player = vlc.MediaPlayer()
 mediaP = ''
 def play_audio(file):
     global intance, player, mediaP
-    if debug: print("{}Play_Audio Request for:{} {}".format(bcolors.OKBLUE, bcolors.ENDC, file))
+    logger.debug("Play_Audio Request for:{}".format(file))
     ext = (file.rpartition(".")[2])[:3]
     #subprocess.Popen(['mpg123', '-q', '{}{}'.format(path, file)]).wait()
     #i = vlc.Instance('--aout=alsa', '--alsa-audio-device=hw:CARD=audiocodec,DEV=0')
     mrl = "{}".format(file)
-    if debug: print(ext)
+    logger.debug(ext)
 
     if mrl != "":
         if ext in playlists:
@@ -246,7 +253,7 @@ def play_audio(file):
             player.play() # play it
             while flag == 0: # Wait until the end of the first media has been reached.$
                 time.sleep(0.5)
-                if debug: print("{}Loading Playlist...{}".format(bcolors.OKBLUE, bcolors.ENDC))
+                logger.debug("{}Loading Playlist...{}")
             sub_list = mediaP.subitems() # .. and get the sub itmes in the playlist
             sub_list.lock()
             sub = sub_list.item_at_index(0) # Get the first sub item
@@ -259,19 +266,19 @@ def play_audio(file):
             player = intance.media_player_new()
             player.set_media(mediaP)
             player.audio_set_volume(100)
-            if debug: print("{}Requesting Stream...{}".format(bcolors.OKBLUE, bcolors.ENDC))
+            logger.debug("{}Requesting Stream...{}")
         player.play()
     else:
-        if debug: print("(play_audio) mrl = Nothing!")
+        logger.debug("(play_audio) mrl = Nothing!")
 
 def setAll(konus=True, dinle=True):
     #global player
     global glob_LastMessageTime
-    if debug: print('setAll Calisti')
+    logger.info('setAll Calisti')
     payload = {'all': '1'}
     output = Web_Request(Domain + 'message.php', payload, True, True)
-    #if debug: print(output)
-    if debug: print('setAll Yanit Geldi')
+    #logger.info(output)
+    logger.info('setAll Yanit Geldi')
 
     if (output and output != None and output != ''):
         try:
@@ -294,12 +301,12 @@ def setAll(konus=True, dinle=True):
                 
                 if (i == count):
                     if ('msj' in message and message['msj'] != None and message['msj'] != ""):
-                        if debug: print(i, message['msj'], kendi_ismim, dt)
+                        logger.info(kendi_ismim + "-> " + message['msj'] + " | " + dt)
 
                     if (message['cvp'] != None and message['cvp'] != ""):
-                        if debug: print(i, message['cvp'], bot_ismi, dt)
+                        logger.info(bot_ismi + "-> " + message['cvp'] + " | " + dt)
 
-                    if debug: print('son mesaj bu!')
+                    logger.info('son mesaj bu!')
                     #if (message.platform == "csharp"):
                     #    durum = message.isdurumu
                     #    if (message.csharp_eval != "" and message.csharp_eval != None):
@@ -309,7 +316,7 @@ def setAll(konus=True, dinle=True):
                 Talk(ses_data, ses_api)
                 ses_gittimi(dinle)
         except ValueError:
-            if debug: print("bu bir json değil")
+            logger.error("bu bir json değil")
             getCryptionKey()
 
 def Talk(ses_data, ses_api):
@@ -318,13 +325,13 @@ def Talk(ses_data, ses_api):
     ses_path = dir_path + "/sesler/" + ses_api + "/"
 
     if(not os.path.exists(ses_path)):
-        if debug: print("Ses klasörü bulunamadı, oluşturuluyor..")
+        logger.debug("Ses klasörü bulunamadı, oluşturuluyor..")
         os.makedirs(ses_path)
 
     file_path = ses_path + hash_dig + ".mp3"
 
     if(not os.path.isfile(file_path)):
-        if debug: print("Ses dosyası bulunamadı, indiriliyor..")
+        logger.debug("Ses dosyası bulunamadı, indiriliyor..")
         req = s.post(Domain + "main?sayfa=ses&ses=" + ses_data + "&pltfrm=csharp&ses_api=" + ses_api, stream=True)
         with open(file_path, 'wb') as f:
             shutil.copyfileobj(req.raw, f)
@@ -349,11 +356,11 @@ def mesaj_ici_bildirim():
     while True:
         global glob_LastMessageTime
         time.sleep(1)
-        #if debug: print('mesaj_ici_bildirim Calisti')
+        #logger.info('mesaj_ici_bildirim Calisti')
         payload = {'sayfa': 'mesaj_ici_bildirim'}
         try:
             output = Web_Request(Domain + 'main', payload, True, True)
-            #if debug: print('mesaj_ici_bildirim Yanit Geldi')
+            #logger.info('mesaj_ici_bildirim Yanit Geldi')
             #if UsePins: led.yellow()
             if (output and output != None and output != ''):
                 try:
@@ -364,22 +371,22 @@ def mesaj_ici_bildirim():
                     if (glob_LastMessageTime != None and glob_LastMessageTime != ''):
                         if (glob_LastMessageTime != LastMessageTime):
                             glob_LastMessageTime = LastMessageTime;
-                            if debug: print(output)
+                            logger.debug(output)
                             if ('kind' in jsonObject and jsonObject['kind'] == 'bildirim'):
                                 konus = True
                             if ('WaitForResponse' not in jsonObject):
                                 dinle = False
     
-                            if debug: print('mesaj_ici_bildirim gelen yanit > 0 oldugundan setAll calistirildi.')
+                            logger.debug('mesaj_ici_bildirim gelen yanit > 0 oldugundan setAll calistirildi.')
                             setAll(konus, dinle)
                     else:
                         glob_LastMessageTime = LastMessageTime
                 except ValueError:
-                    if debug: print("bu bir json değil")
+                    logger.error("bu bir json değil")
                     getCryptionKey()
                     continue
         except (RuntimeError, TypeError, NameError):
-            if debug: print("bir hata oldu sanki :))")
+            logger.error("bir hata oldu sanki :))")
             getCryptionKey()
             continue
 def DING():
@@ -388,47 +395,47 @@ def DING():
 
 def tetiklendi():
     try:        
-        if debug: print("{}Bir şeyler söyle!{}".format(bcolors.OKBLUE, bcolors.ENDC))
+        logger.debug("Bir şeyler söyle!")
         with m as source: audio = r.listen(source, timeout=5)
         if UsePins: led.yellow()
-        if debug: print("{}Yakaladım! Şimdi sesi tanımaya çalışıyorum...{}".format(bcolors.WARNING, bcolors.ENDC))
+        logger.info("Yakaladım! Şimdi sesi tanımaya çalışıyorum...")
         try:
             # Tanımlama işlemi Google Ses Tanıma servisi kullanılarak gerçekleştiriliyor.
             value = r.recognize_google(audio, language="tr-TR")
-            if debug: print("{}Set minimum energy threshold to {}{}".format(bcolors.WARNING, r.energy_threshold, bcolors.ENDC))
+            logger.debug("Set minimum energy threshold to {}".format(r.energy_threshold))
             # we need some special handling here to correctly print unicode characters to standard output
             if str is bytes:  # this version of Python uses bytes for strings (Python 2)
-                if debug: print(u"P2Dediğin: {}".format(value).encode("utf-8"))
+                logger.debug(u"P2Dediğin: {}".format(value).encode("utf-8"))
                 data = format(value).encode("utf-8")
             else:  # this version of Python uses unicode for strings (Python 3+)
-                if debug: print("{}P3Dediğin: {}{}".format(bcolors.WARNING, value, bcolors.ENDC))
+                logger.debug("P3Dediğin: {}".format(value))
                 data = format(value)
             if(data and data != None and data != ''):
                 if UsePins: led.green()
                 doWork(data, True, True)
         except sr.UnknownValueError:
-            if debug: print("{}Eyvah! Sesi yakalayamadım!{}".format(bcolors.FAIL, bcolors.ENDC))
+            logger.warning("Eyvah! Sesi yakalayamadım!")
             if UsePins: led.red()
             snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
         except sr.RequestError as e:
-            if debug: print("{}Ah be! Google Ses Tanıma servisinden sonuç isteği yapılamadı; {}{}".format(bcolors.FAIL, e, bcolors.ENDC))
+            logger.error("Ah be! Google Ses Tanıma servisinden sonuç isteği yapılamadı; {}".format(e))
             if UsePins: led.red()
             snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     except sr.WaitTimeoutError:
-        if debug: print("{}Zaman Aşımı Gerçekleşti{}".format(bcolors.FAIL, bcolors.ENDC))
+        logger.error("Zaman Aşımı Gerçekleşti")
         if UsePins: led.red()
         snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     if UsePins: led.off()
 
 def detect_callback():
     delete_last_lines()
-    print("...")
+    logger.debug("...")
     delete_last_lines()
     detector.terminate()
     tetiklendiThread = Thread(target = tetiklendi)
     tetiklendiThread.start()
     DING()
-    if debug: print('Artex Sözcüğü Dinleniyor... Çıkış için Ctrl+C basın')
+    logger.debug('Artex Sözcüğü Dinleniyor... Çıkış için Ctrl+C basın')
     detector.start(detected_callback=detect_callback, sleep_time=0.03)
 
 # capture SIGINT signal, e.g., Ctrl+C
@@ -440,7 +447,7 @@ if __name__ == "__main__":
 
     Giris()
 
-    if debug: print('Artex Sözcüğü Dinleniyor... Çıkış için Ctrl+C basın')
+    logger.debug('Artex Sözcüğü Dinleniyor... Çıkış için Ctrl+C basın')
 
     # Main Loop
     detector.start(detected_callback=detect_callback,interrupt_check=interrupt_callback,sleep_time=0.03)
