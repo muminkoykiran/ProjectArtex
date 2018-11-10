@@ -159,9 +159,9 @@ def Web_Request(post_url, postData, cookie_save, WantEncryption):
 
         return out
     except requests.exceptions.Timeout as e:
-        logger.warning(e)
+        logger.error(e)
     except requests.exceptions.TooManyRedirects as e:
-        logger.warning(e)
+        logger.error(e)
     except requests.exceptions.HTTPError as e:
         logger.error(e)
         #sys.exit(1)
@@ -376,7 +376,7 @@ def tetiklendi():
             if UsePins: led.red()
             snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     except sr.WaitTimeoutError:
-        logger.error("Zaman Aşımı Gerçekleşti")
+        logger.warning("Zaman Aşımı Gerçekleşti")
         if UsePins: led.red()
         snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     if UsePins: led.off()
