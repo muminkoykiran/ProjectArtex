@@ -386,9 +386,13 @@ def detect_callback():
     logger.debug("...")
     delete_last_lines()
     detector.terminate()
-    tetiklendiThread = Thread(target = tetiklendi)
-    tetiklendiThread.start()
-    DING()
+    #tetiklendiThread = Thread(target = tetiklendi)
+    #tetiklendiThread.start()
+    #DING()
+    DINGThread = Thread(target = DING)
+    DINGThread.start()
+
+    tetiklendi()
     logger.debug('Artex Sözcüğü Dinleniyor... Çıkış için Ctrl+C basın')
     detector.start(detected_callback=detect_callback, sleep_time=0.03)
 
