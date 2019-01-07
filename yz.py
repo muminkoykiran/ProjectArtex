@@ -85,7 +85,7 @@ m = sr.Microphone()
 
 logger.warning("Biraz sessiz kalın, Lütfen...")
 with m as source: r.adjust_for_ambient_noise(source)
-logger.info("Minimum threshold enerjisi {} olarak tanımlandı.".format(r.energy_threshold))
+logger.debug("Minimum threshold enerjisi {} olarak tanımlandı.".format(r.energy_threshold))
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 glob_LastMessageTime = ''
@@ -159,18 +159,19 @@ def Web_Request(post_url, postData, cookie_save, WantEncryption):
 
         return out
     except requests.exceptions.Timeout as e:
-        logger.error(e)
+        getCryptionKey()
+        logger.error("exceptions.Timeout" + e)
     except requests.exceptions.TooManyRedirects as e:
-        logger.error(e)
+        logger.error("exceptions.TooManyRedirects" + e)
     except requests.exceptions.HTTPError as e:
-        logger.error(e)
-        #sys.exit(1)
+        getCryptionKey()
+        logger.error("exceptions.HTTPError" + e)
     except requests.exceptions.RequestException as e:
-        logger.error(e)
-        #sys.exit(1)
+        getCryptionKey()
+        logger.error("exceptions.RequestException" + e)
     except:
-        #s = requests.Session()
-        logger.error(sys.exc_info()[0])
+        getCryptionKey()
+        logger.error("sys.exc_info()[0]" + sys.exc_info()[0])
 
 def getCryptionKey():
     global CryptionKey
@@ -219,19 +220,19 @@ def Giris():
     if UsePins: led.off()
 
 def doWork(msg="", konus=True, dinle=True):
-    logger.info("doWork Calisti, Gonderilecek Mesaj: '" + msg + "'")
+    logger.debug("doWork Calisti, Gonderilecek Mesaj: '" + msg + "'")
     payload = {'msg': msg, 'pltfrm': 'orangepi'}
     output = Web_Request(Domain + 'message.php', payload, True, True)
-    logger.info('doWork Yanit Geldi -> ' + output)
+    logger.debug('doWork Yanit Geldi -> ' + output)
     setAll(konus, dinle)
 
 def setAll(konus=True, dinle=True):
     global glob_LastMessageTime
-    logger.info('setAll Calisti')
+    logger.debug('setAll Calisti')
     payload = {'all': '1'}
     output = Web_Request(Domain + 'message.php', payload, True, True)
-    #logger.info(output)
-    logger.info('setAll Yanit Geldi')
+    #logger.debug(output)
+    logger.debug('setAll Yanit Geldi')
 
     if (output and output != None and output != ''):
         try:
@@ -254,10 +255,10 @@ def setAll(konus=True, dinle=True):
                 
                 if (i == count):
                     if ('msj' in message and message['msj'] != None and message['msj'] != ""):
-                        logger.info(kendi_ismim + "-> " + message['msj'] + " | " + dt)
+                        logger.debug(kendi_ismim + "-> " + message['msj'] + " | " + dt)
 
                     if (message['cvp'] != None and message['cvp'] != ""):
-                        logger.info(bot_ismi + "-> " + message['cvp'] + " | " + dt)
+                        logger.debug(bot_ismi + "-> " + message['cvp'] + " | " + dt)
 
                     #if (message.platform == "csharp"):
                     #    durum = message.isdurumu
@@ -310,11 +311,11 @@ def mesaj_ici_bildirim():
     while True:
         global glob_LastMessageTime
         time.sleep(1)
-        #logger.info('mesaj_ici_bildirim Calisti')
+        #logger.debug('mesaj_ici_bildirim Calisti')
         payload = {'sayfa': 'mesaj_ici_bildirim'}
         try:
             output = Web_Request(Domain + 'main', payload, True, True)
-            #logger.info('mesaj_ici_bildirim Yanit Geldi')
+            #logger.debug('mesaj_ici_bildirim Yanit Geldi')
             #if UsePins: led.yellow()
             if (output and output != None and output != ''):
                 try:
@@ -352,7 +353,7 @@ def tetiklendi():
         logger.debug("Bir şeyler söyle!")
         with m as source: audio = r.listen(source, timeout=5)
         if UsePins: led.yellow()
-        logger.info("Yakaladım! Şimdi sesi tanımaya çalışıyorum...")
+        logger.debug("Yakaladım! Şimdi sesi tanımaya çalışıyorum...")
         try:
             # Tanımlama işlemi Google Ses Tanıma servisi kullanılarak gerçekleştiriliyor.
             value = r.recognize_google(audio, language="tr-TR")
