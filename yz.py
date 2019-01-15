@@ -336,8 +336,10 @@ def mesaj_ici_bildirim():
                             setAll(konus, dinle)
                     else:
                         glob_LastMessageTime = LastMessageTime
-                except ValueError:
-                    logger.error("bu bir json değil")
+                except Exception as e:
+                    #except ValueError:
+                    #logger.error("bu bir json değil")
+                    logger.error("bir hata oldu sanki json ile ilgili olabilir.")
                     getCryptionKey()
                     pass
         except (RuntimeError, TypeError, NameError):
