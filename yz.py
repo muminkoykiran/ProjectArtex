@@ -176,15 +176,15 @@ def Web_Request(post_url, postData, cookie_save, WantEncryption):
 def getCryptionKey():
     global CryptionKey
     payload = {'sayfa': 'yz_CryptionKey'}
-    output = Web_Request(Domain + 'main', payload, True, False)
+    output = Web_Request(BaseUrl + 'main', payload, True, False)
     CryptionKey = decrypt(output, Salt)
     logger.debug(CryptionKey)
 
 def Login():
     getCryptionKey()
 
-    payload = {'pltfrm': 'orangepi', 'Username': KullaniciAdi, 'Password': Parola, 'Remember': 'on'}
-    jsonOutput = Web_Request(Domain + 'login', payload, True, True).strip()
+    payload = {'pltfrm': 'orangepi', 'Username': Username, 'Password': Password, 'Remember': 'on'}
+    jsonOutput = Web_Request(BaseUrl + 'login', payload, True, True).strip()
 
     logger.debug(output)
     output = json.loads(jsonOutput)
@@ -211,7 +211,7 @@ def Login():
 def SendMessage(msg="", Talking=True, Listening=True):
     logger.debug("SendMessage Calisti, Gonderilecek Mesaj: '" + msg + "'")
     payload = {'msg': msg, 'pltfrm': 'orangepi'}
-    output = Web_Request(Domain + 'message.php', payload, True, True)
+    output = Web_Request(BaseUrl + 'message.php', payload, True, True)
     logger.debug('SendMessage Yanit Geldi -> ' + output)
     ShowAll(Talking, Listening)
 
@@ -219,7 +219,7 @@ def ShowAll(Talking=True, Listening=True):
     global glob_LastMessageTime
     logger.debug('ShowAll Calisti')
     payload = {'all': '1'}
-    output = Web_Request(Domain + 'message.php', payload, True, True)
+    output = Web_Request(BaseUrl + 'message.php', payload, True, True)
     #logger.debug(output)
     logger.debug('ShowAll Yanit Geldi')
 
@@ -256,7 +256,7 @@ def ShowAll(Talking=True, Listening=True):
                 i += 1
             if(Talking == True):
                 Talk(ses_data, ses_api)
-                IsSpeaking(Listening)
+                sSpeaking(Listening)
         except ValueError:
             logger.error("bu bir json değil")
             getCryptionKey()
@@ -277,14 +277,14 @@ def Talk(ses_data, ses_api):
 
     if(not os.path.isfile(file_path)):
         logger.debug("Ses dosyası bulunamadı, indiriliyor..")
-        req = s.post(Domain + "main?sayfa=ses&ses=" + ses_data + "&pltfrm=csharp&ses_api=" + ses_api, stream=True)
+        req = s.post(BaseUrl + "main?sayfa=ses&ses=" + ses_data + "&pltfrm=csharp&ses_api=" + ses_api, stream=True)
         with open(file_path, 'wb') as f:
             shutil.copyfileobj(req.raw, f)
     if UsePins: led.blue()
     player.set_media(intance.media_new(file_path))
     player.play()
 
-def IsSpeaking(Listening=True):
+def isSpeaking(Listening=True):
     global player
     time.sleep(0.5)
     while(player.is_playing() == True):
@@ -303,7 +303,7 @@ def CheckNotifications():
         #logger.debug('CheckNotifications Calisti')
         payload = {'sayfa': 'mesaj_ici_bildirim'}
         try:
-            output = Web_Request(Domain + 'main', payload, True, True)
+            output = Web_Request(BaseUrl + 'main', payload, True, True)
             #logger.debug('CheckNotifications Yanit Geldi')
             #if UsePins: led.yellow()
             if (output and output != None and output != ''):

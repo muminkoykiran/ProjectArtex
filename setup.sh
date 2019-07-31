@@ -96,16 +96,16 @@ read UsePins
 echo UsePins = \"$UsePins\" >> creds.py
 
 echo "Kullanici Adinizi Girin:"
-read KullaniciAdi
-echo KullaniciAdi = \"$KullaniciAdi\" >> creds.py
+read Username
+echo Username = \"$Username\" >> creds.py
 
 echo "Parolanizi Girin:"
-read Parola
-echo Parola = \"$Parola\" >> creds.py
+read Password
+echo Password = \"$Password\" >> creds.py
 
 echo "Domaini Girin:"
-read Domain
-echo Domain = \"$Domain\" >> creds.py
+read BaseUrl
+echo BaseUrl = \"$BaseUrl\" >> creds.py
 
 echo "Salt:"
 read Salt
