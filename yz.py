@@ -1,7 +1,4 @@
-from Crypto import Random
-from Crypto.Cipher import AES
-import base64
-from hashlib import md5
+from CryptoStuffClass import CryptoStuff
 import snowboydecoder
 import signal
 from urllib.parse import urlencode, quote_plus
@@ -13,11 +10,13 @@ from threading import Thread
 import time
 import json
 from urllib.request import urlretrieve
-import hashlib
 import shutil
 import os
 import vlc
 import logging
+from hashlib import sha1
+
+CryptoClass = CryptoStuff()
 
 #Debug
 debug = True
@@ -94,44 +93,6 @@ playlists = set(['pls', 'm3u', 'ash'])
 model = sys.argv[1]
 detector = snowboydecoder.HotwordDetector(model, sensitivity=0.4)
 
-BLOCK_SIZE = 16
-
-def pad(data):
-    length = BLOCK_SIZE - (len(data) % BLOCK_SIZE)
-    return data + (chr(length)*length).encode().decode('ascii')
-
-def unpad(data):
-    return data[:-(data[-1] if type(data[-1]) == int else ord(data[-1]))]
-
-def bytes_to_key(data, salt, output=48):
-    # extended from https://gist.github.com/gsakkis/4546068
-    assert len(salt) == 8, len(salt)
-    data += salt
-    key = md5(data).digest()
-    final_key = key
-    while len(final_key) < output:
-        key = md5(key + data).digest()
-        final_key += key
-    return final_key[:output]
-
-def encrypt(message, passphrase):
-    salt = Random.new().read(8)
-    key_iv = bytes_to_key(passphrase, salt, 32+16)
-    key = key_iv[:32]
-    iv = key_iv[32:]
-    aes = AES.new(key, AES.MODE_CBC, iv)
-    return base64.b64encode(b"Salted__" + salt + aes.encrypt(pad(message)))
-
-def decrypt(encrypted, passphrase):
-    encrypted = base64.b64decode(encrypted)
-    assert encrypted[0:8] == b"Salted__"
-    salt = encrypted[8:16]
-    key_iv = bytes_to_key(passphrase, salt, 32+16)
-    key = key_iv[:32]
-    iv = key_iv[32:]
-    aes = AES.new(key, AES.MODE_CBC, iv)
-    return unpad(aes.decrypt(encrypted[16:]))
-
 Salt = Salt.encode()
 
 jar = requests.cookies.RequestsCookieJar()
@@ -142,7 +103,7 @@ def Web_Request(post_url, postData, cookie_save, WantEncryption):
         payload = None
         if(WantEncryption == True):
             payload = urlencode(postData, quote_via=quote_plus)
-            sifrele = encrypt(payload, CryptionKey)
+            sifrele = CryptoClass.encrypt(payload, CryptionKey)
             payload = {'_yzCryption': sifrele}
         else:
             payload = postData
@@ -153,25 +114,20 @@ def Web_Request(post_url, postData, cookie_save, WantEncryption):
         out = None
         if(req.status_code == 200):
             out = req.text
-            #logger.debug(out)
             if(not out or out == ''):
                 out = None
 
         return out
     except requests.exceptions.Timeout as e:
-        #getCryptionKey()
         logger.error("exceptions.Timeout" + e)
     except requests.exceptions.TooManyRedirects as e:
         logger.error("exceptions.TooManyRedirects" + e)
     except requests.exceptions.HTTPError as e:
-        #getCryptionKey()
         logger.error("exceptions.HTTPError" + e)
     except requests.exceptions.RequestException as e:
-        #getCryptionKey()
         logger.error("exceptions.RequestException" + e)
     except:
-        #getCryptionKey()
-        logger.error("sys.exc_info()[0]" + sys.exc_info()[0])
+        logger.error("sys.exc_info()[0]" + str(sys.exc_info()[0]))
 
 def getCryptionKey():
     try:
@@ -179,16 +135,21 @@ def getCryptionKey():
         payload = {'sayfa': 'yz_CryptionKey'}
         jsonOutput = Web_Request(BaseUrl + 'main', payload, True, False)
         output = json.loads(jsonOutput)
-        CryptionKey = decrypt(output, Salt)
+        CryptionKey = CryptoClass.decrypt(output, Salt)
         logger.debug(CryptionKey)
+        return True
     except:
         logger.error("sys.exc_info()[0]" + str(sys.exc_info()[0]))
 
 def Login():
     getCryptionKey()
 
+    if(getCryptionKey() != True):
+        logger.error("getCryptionKey sırasında hata oluştu baştan başlatın!")
+        return
+
     payload = {'pltfrm': 'orangepi', 'Username': Username, 'Password': Password, 'Remember': 'on'}
-    jsonOutput = Web_Request(BaseUrl + 'login', payload, True, True).strip()
+    jsonOutput = Web_Request(BaseUrl + 'login', payload, True, True)
 
     logger.debug(jsonOutput)
     output = json.loads(jsonOutput)
@@ -267,7 +228,7 @@ intance = vlc.Instance()
 player = vlc.MediaPlayer()
 
 def Talk(ses_data, ses_api):
-    hash_object = hashlib.sha1(b''+ses_data.encode('utf-8').strip())
+    hash_object = sha1(b''+ses_data.encode('utf-8').strip())
     hash_dig = hash_object.hexdigest()
     ses_path = dir_path + "/sesler/" + ses_api + "/"
 
