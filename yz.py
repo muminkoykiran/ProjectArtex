@@ -97,8 +97,6 @@ playlists = set(['pls', 'm3u', 'ash'])
 model = sys.argv[1]
 detector = snowboydecoder.HotwordDetector(model, sensitivity=0.4)
 
-Salt = Salt.encode()
-
 jar = requests.cookies.RequestsCookieJar()
 s = requests.Session()
 def Web_Request(post_url, postData, cookie_save, WantEncryption):
@@ -139,7 +137,7 @@ def getCryptionKey():
         payload = {'sayfa': 'yz_CryptionKey'}
         jsonOutput = Web_Request(BaseUrl + 'main', payload, True, False)
         output = json.loads(jsonOutput)
-        CryptionKey = CryptoClass.decrypt(output, Salt)
+        CryptionKey = CryptoClass.decrypt(output, Salt.encode())
         logger.debug(CryptionKey)
         return True
     except:
@@ -300,6 +298,7 @@ def CheckNotifications():
             logger.error("bir hata oldu sanki :))")
             getCryptionKey()
             pass
+
 def DING():
     if UsePins: led.cyan()
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
@@ -342,7 +341,7 @@ def detect_callback():
     logger.debug("...")
     delete_last_lines()
     detector.terminate()
-    #DING()
+    
     DINGThread = Thread(target = DING)
     DINGThread.start()
 
