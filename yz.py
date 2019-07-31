@@ -73,7 +73,7 @@ if(UsePins):
 
 def delete_last_lines(n=1):
     for _ in range(n):
- sys.stdout.write(CURSOR_UP_ONE)
+        sys.stdout.write(CURSOR_UP_ONE)
         sys.stdout.write(ERASE_LINE)
 
 r = sr.Recognizer()
@@ -159,26 +159,30 @@ def Web_Request(post_url, postData, cookie_save, WantEncryption):
 
         return out
     except requests.exceptions.Timeout as e:
-        getCryptionKey()
+        #getCryptionKey()
         logger.error("exceptions.Timeout" + e)
     except requests.exceptions.TooManyRedirects as e:
         logger.error("exceptions.TooManyRedirects" + e)
     except requests.exceptions.HTTPError as e:
-        getCryptionKey()
+        #getCryptionKey()
         logger.error("exceptions.HTTPError" + e)
     except requests.exceptions.RequestException as e:
-        getCryptionKey()
+        #getCryptionKey()
         logger.error("exceptions.RequestException" + e)
     except:
-        getCryptionKey()
+        #getCryptionKey()
         logger.error("sys.exc_info()[0]" + sys.exc_info()[0])
 
 def getCryptionKey():
-    global CryptionKey
-    payload = {'sayfa': 'yz_CryptionKey'}
-    output = Web_Request(BaseUrl + 'main', payload, True, False)
-    CryptionKey = decrypt(output, Salt)
-    logger.debug(CryptionKey)
+    try:
+        global CryptionKey
+        payload = {'sayfa': 'yz_CryptionKey'}
+        jsonOutput = Web_Request(BaseUrl + 'main', payload, True, False)
+        output = json.loads(jsonOutput)
+        CryptionKey = decrypt(output, Salt)
+        logger.debug(CryptionKey)
+    except:
+        logger.error("sys.exc_info()[0]" + str(sys.exc_info()[0]))
 
 def Login():
     getCryptionKey()
@@ -186,7 +190,7 @@ def Login():
     payload = {'pltfrm': 'orangepi', 'Username': Username, 'Password': Password, 'Remember': 'on'}
     jsonOutput = Web_Request(BaseUrl + 'login', payload, True, True).strip()
 
-    logger.debug(output)
+    logger.debug(jsonOutput)
     output = json.loads(jsonOutput)
 
     if (output == "yanlis"):
@@ -195,7 +199,7 @@ def Login():
     elif (output == "basarili"):
         logger.debug("Giris Islemi Basarili!")
         if UsePins: led.magenta()
-        doWork("", False, False)
+        SendMessage("", False, False)
         ThreadCheckNotifications.start()
         #burada mesaj gonderme fonksiyonunu calistiracak
         
@@ -208,9 +212,9 @@ def Login():
         #logger.debug(output)
     if UsePins: led.off()
 
-def SendMessage(msg="", Talking=True, Listening=True):
-    logger.debug("SendMessage Calisti, Gonderilecek Mesaj: '" + msg + "'")
-    payload = {'msg': msg, 'pltfrm': 'orangepi'}
+def SendMessage(Message="", Talking=True, Listening=True):
+    logger.debug("SendMessage Calisti, Gonderilecek Mesaj: '" + Message + "'")
+    payload = {'msg': Message, 'pltfrm': 'orangepi'}
     output = Web_Request(BaseUrl + 'message.php', payload, True, True)
     logger.debug('SendMessage Yanit Geldi -> ' + output)
     ShowAll(Talking, Listening)
@@ -238,8 +242,6 @@ def ShowAll(Talking=True, Listening=True):
 
             count, i = len(messages), 1
             for message in messages:
-                durum = ""
-                csharp_eval = ""
                 dt = message['time']
                 
                 if (i == count):
@@ -256,7 +258,7 @@ def ShowAll(Talking=True, Listening=True):
                 i += 1
             if(Talking == True):
                 Talk(ses_data, ses_api)
-                sSpeaking(Listening)
+                IsSpeaking(Listening)
         except ValueError:
             logger.error("bu bir json değil")
             getCryptionKey()
@@ -284,7 +286,7 @@ def Talk(ses_data, ses_api):
     player.set_media(intance.media_new(file_path))
     player.play()
 
-def isSpeaking(Listening=True):
+def IsSpeaking(Listening=True):
     global player
     time.sleep(0.5)
     while(player.is_playing() == True):
@@ -311,23 +313,21 @@ def CheckNotifications():
                     jsonObject = json.loads(output)
                     LastMessageTime = jsonObject['LastMessageTime']
                     Talking = False
-                    Listening = True
+                    Listening = False
                     if (glob_LastMessageTime != None and glob_LastMessageTime != ''):
                         if (glob_LastMessageTime != LastMessageTime):
                             glob_LastMessageTime = LastMessageTime;
                             logger.debug(output)
                             if ('kind' in jsonObject and jsonObject['kind'] == 'bildirim'):
                                 Talking = True
-                            if ('WaitForResponse' not in jsonObject):
-                                Listening = False
+                            if ('WaitForResponse' in jsonObject and jsonObject['WaitForResponse'] == True):
+                                Listening = True
     
                             logger.debug('CheckNotifications gelen yanit > 0 oldugundan ShowAll calistirildi.')
                             ShowAll(Talking, Listening)
                     else:
                         glob_LastMessageTime = LastMessageTime
                 except Exception as e:
-                    #except ValueError:
-                    #logger.error("bu bir json değil")
                     logger.error("bir hata oldu sanki json ile ilgili olabilir.")
                     getCryptionKey()
                     pass
