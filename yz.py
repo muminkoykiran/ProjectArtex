@@ -180,14 +180,6 @@ def getCryptionKey():
     CryptionKey = decrypt(output, Salt)
     logger.debug(CryptionKey)
 
-def controleCryptionKey():
-    payload = {'sayfa': 'control_CryptionKey'}
-    output = Web_Request(Domain + 'main', payload, True, False)
-    if (output != None and output != ""):
-        global CryptionKey
-        CryptionKey = decrypt(output, Salt)
-        logger.debug(CryptionKey)
-
 def Giris():
     getCryptionKey()
 
