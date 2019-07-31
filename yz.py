@@ -1,4 +1,4 @@
-from CryptoStuffClass import CryptoStuff
+import CryptoStuffClass
 import snowboydecoder
 import signal
 from urllib.parse import urlencode, quote_plus
@@ -16,12 +16,12 @@ import vlc
 import logging
 from hashlib import sha1
 
-CryptoClass = CryptoStuff()
+CryptoClass = CryptoStuffClass.CryptoStuff()
 
 #Debug
-debug = True
+Debug = True
 
-if debug:
+if Debug:
     log_level = logging.DEBUG
 else:
     log_level = logging.getLevelName('INFO')
@@ -35,10 +35,10 @@ ch = logging.StreamHandler()
 ch.setLevel(log_level) # Hata ayıklama tipini belirledik.
 
 formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
- 
+
 # Konsol Formatı
 ch.setFormatter(formatter)
- 
+
 # logger için konsol
 logger.addHandler(ch)
  
@@ -51,16 +51,20 @@ ERASE_LINE = '\x1b[2K'
 if(UsePins):
     from rgbControlClass import RGBControl
 
-interrupted = False
-
 if len(sys.argv) == 1:
     logger.error("HATA: özel bir model ismi gerekiyor")
     logger.info("ÖRNEK KULLANIM: python3 yz.py modeldosyasi.model")
     sys.exit(-1)
 
+
+interrupted = False
+
 def signal_handler(signal, frame):
     global interrupted
     interrupted = True
+
+# capture SIGINT signal, e.g., Ctrl+C
+signal.signal(signal.SIGINT, signal_handler)
 
 def interrupt_callback():
     global interrupted
@@ -87,7 +91,7 @@ with m as source: r.adjust_for_ambient_noise(source)
 logger.debug("Minimum threshold enerjisi {} olarak tanımlandı.".format(r.energy_threshold))
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-glob_LastMessageTime = ''
+GlobalLastMessageTime = ''
 playlists = set(['pls', 'm3u', 'ash'])
 
 model = sys.argv[1]
@@ -181,7 +185,7 @@ def SendMessage(Message="", Talking=True, Listening=True):
     ShowAll(Talking, Listening)
 
 def ShowAll(Talking=True, Listening=True):
-    global glob_LastMessageTime
+    global GlobalLastMessageTime
     logger.debug('ShowAll Calisti')
     payload = {'all': '1'}
     output = Web_Request(BaseUrl + 'message.php', payload, True, True)
@@ -199,7 +203,7 @@ def ShowAll(Talking=True, Listening=True):
             ses_ac_kapa = datas['ses_ac_kapa']
             ses_data = datas['ses_data']
             ses_api = datas['ses_api']
-            glob_LastMessageTime = datas['LastMessageTime']
+            GlobalLastMessageTime = datas['LastMessageTime']
 
             count, i = len(messages), 1
             for message in messages:
@@ -261,7 +265,7 @@ def IsSpeaking(Listening=True):
 
 def CheckNotifications():
     while True:
-        global glob_LastMessageTime
+        global GlobalLastMessageTime
         time.sleep(1)
         #logger.debug('CheckNotifications Calisti')
         payload = {'sayfa': 'mesaj_ici_bildirim'}
@@ -275,9 +279,9 @@ def CheckNotifications():
                     LastMessageTime = jsonObject['LastMessageTime']
                     Talking = False
                     Listening = False
-                    if (glob_LastMessageTime != None and glob_LastMessageTime != ''):
-                        if (glob_LastMessageTime != LastMessageTime):
-                            glob_LastMessageTime = LastMessageTime;
+                    if (GlobalLastMessageTime != None and GlobalLastMessageTime != ''):
+                        if (GlobalLastMessageTime != LastMessageTime):
+                            GlobalLastMessageTime = GlobalLastMessageTime;
                             logger.debug(output)
                             if ('kind' in jsonObject and jsonObject['kind'] == 'bildirim'):
                                 Talking = True
@@ -287,7 +291,7 @@ def CheckNotifications():
                             logger.debug('CheckNotifications gelen yanit > 0 oldugundan ShowAll calistirildi.')
                             ShowAll(Talking, Listening)
                     else:
-                        glob_LastMessageTime = LastMessageTime
+                        GlobalLastMessageTime = LastMessageTime
                 except Exception as e:
                     logger.error("bir hata oldu sanki json ile ilgili olabilir.")
                     getCryptionKey()
@@ -307,14 +311,13 @@ def Triggered():
         if UsePins: led.yellow()
         logger.debug("Yakaladım! Şimdi sesi tanımaya çalışıyorum...")
         try:
-            # Tanımlama işlemi Google Ses Tanıma servisi kullanılarak gerçekleştiriliyor.
             value = r.recognize_google(audio, language="tr-TR")
-            logger.debug("Set minimum energy threshold to {}".format(r.energy_threshold))
-            # we need some special handling here to correctly print unicode characters to standard output
-            if str is bytes:  # this version of Python uses bytes for strings (Python 2)
+            logger.debug("Minimum threshold enerjisi {} olarak tanımlandı.".format(r.energy_threshold))
+
+            if str is bytes:
                 logger.debug(u"P2Dediğin: {}".format(value).encode("utf-8"))
                 data = format(value).encode("utf-8")
-            else:  # this version of Python uses unicode for strings (Python 3+)
+            else:
                 logger.debug("P3Dediğin: {}".format(value))
                 data = format(value)
             if(data and data != None and data != ''):
@@ -346,9 +349,6 @@ def detect_callback():
     Triggered()
     logger.debug('Artex Sözcüğü Dinleniyor... Çıkış için Ctrl+C basın')
     detector.start(detected_callback=detect_callback, sleep_time=0.03)
-
-# capture SIGINT signal, e.g., Ctrl+C
-#signal.signal(signal.SIGINT, signal_handler)
 
 if __name__ == "__main__":
     ThreadCheckNotifications = Thread(target = CheckNotifications)
