@@ -20,12 +20,12 @@ import vlc
 import logging
 
 #Debug
-debug = 1
+debug = True
 
 if debug:
-	log_level = logging.DEBUG
+    log_level = logging.DEBUG
 else:
-	log_level = logging.getLevelName('INFO')
+    log_level = logging.getLevelName('INFO')
 
 # Logger oluşturalım.
 logger = logging.getLogger("ProjectArtex")
@@ -184,9 +184,10 @@ def Giris():
     getCryptionKey()
 
     payload = {'pltfrm': 'orangepi', 'Username': KullaniciAdi, 'Password': Parola, 'Remember': 'on'}
-    output = Web_Request(Domain + 'login', payload, True, True).strip()
+    jsonOutput = Web_Request(Domain + 'login', payload, True, True).strip()
 
     logger.debug(output)
+    output = json.loads(jsonOutput)
 
     if (output == "yanlis"):
         logger.error("Kullanici Adi veya Parola Yanlis!")
@@ -201,9 +202,6 @@ def Giris():
         
         #if (ApplicationDeployment.IsNetworkDeployed)
         #    set_setting("csharp_version", ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString())
-        
-        #Console.WriteLine("aracxml icindeki th_oto_soru calistirildi.")
-        #oto_soru()
     elif (output == "yok"):
         logger.error("Boyle Bir Kullanici Yok!")
         sys.exit(1)
