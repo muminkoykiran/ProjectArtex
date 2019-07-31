@@ -73,7 +73,7 @@ if(UsePins):
 
 def delete_last_lines(n=1):
     for _ in range(n):
-        sys.stdout.write(CURSOR_UP_ONE)
+ sys.stdout.write(CURSOR_UP_ONE)
         sys.stdout.write(ERASE_LINE)
 
 r = sr.Recognizer()
@@ -180,7 +180,7 @@ def getCryptionKey():
     CryptionKey = decrypt(output, Salt)
     logger.debug(CryptionKey)
 
-def Giris():
+def Login():
     getCryptionKey()
 
     payload = {'pltfrm': 'orangepi', 'Username': KullaniciAdi, 'Password': Parola, 'Remember': 'on'}
@@ -194,10 +194,9 @@ def Giris():
         sys.exit(1)
     elif (output == "basarili"):
         logger.debug("Giris Islemi Basarili!")
-        giris_durumu = "basarili"
         if UsePins: led.magenta()
         doWork("", False, False)
-        t1.start()
+        ThreadCheckNotifications.start()
         #burada mesaj gonderme fonksiyonunu calistiracak
         
         #if (ApplicationDeployment.IsNetworkDeployed)
@@ -209,20 +208,20 @@ def Giris():
         #logger.debug(output)
     if UsePins: led.off()
 
-def doWork(msg="", konus=True, dinle=True):
-    logger.debug("doWork Calisti, Gonderilecek Mesaj: '" + msg + "'")
+def SendMessage(msg="", Talking=True, Listening=True):
+    logger.debug("SendMessage Calisti, Gonderilecek Mesaj: '" + msg + "'")
     payload = {'msg': msg, 'pltfrm': 'orangepi'}
     output = Web_Request(Domain + 'message.php', payload, True, True)
-    logger.debug('doWork Yanit Geldi -> ' + output)
-    setAll(konus, dinle)
+    logger.debug('SendMessage Yanit Geldi -> ' + output)
+    ShowAll(Talking, Listening)
 
-def setAll(konus=True, dinle=True):
+def ShowAll(Talking=True, Listening=True):
     global glob_LastMessageTime
-    logger.debug('setAll Calisti')
+    logger.debug('ShowAll Calisti')
     payload = {'all': '1'}
     output = Web_Request(Domain + 'message.php', payload, True, True)
     #logger.debug(output)
-    logger.debug('setAll Yanit Geldi')
+    logger.debug('ShowAll Yanit Geldi')
 
     if (output and output != None and output != ''):
         try:
@@ -255,9 +254,9 @@ def setAll(konus=True, dinle=True):
                     #    if (message.csharp_eval != "" and message.csharp_eval != None):
                     #        csharp_eval = UrlDecode(message.csharp_eval)
                 i += 1
-            if(konus == True):
+            if(Talking == True):
                 Talk(ses_data, ses_api)
-                ses_gittimi(dinle)
+                IsSpeaking(Listening)
         except ValueError:
             logger.error("bu bir json değil")
             getCryptionKey()
@@ -285,45 +284,45 @@ def Talk(ses_data, ses_api):
     player.set_media(intance.media_new(file_path))
     player.play()
 
-def ses_gittimi(dinle=True):
+def IsSpeaking(Listening=True):
     global player
     time.sleep(0.5)
     while(player.is_playing() == True):
         pass
     
-    if(dinle == True):
+    if(Listening == True):
         DING()
-        tetiklendi()
+        Triggered()
 
     if UsePins: led.off()
 
-def mesaj_ici_bildirim():
+def CheckNotifications():
     while True:
         global glob_LastMessageTime
         time.sleep(1)
-        #logger.debug('mesaj_ici_bildirim Calisti')
+        #logger.debug('CheckNotifications Calisti')
         payload = {'sayfa': 'mesaj_ici_bildirim'}
         try:
             output = Web_Request(Domain + 'main', payload, True, True)
-            #logger.debug('mesaj_ici_bildirim Yanit Geldi')
+            #logger.debug('CheckNotifications Yanit Geldi')
             #if UsePins: led.yellow()
             if (output and output != None and output != ''):
                 try:
                     jsonObject = json.loads(output)
                     LastMessageTime = jsonObject['LastMessageTime']
-                    konus = False
-                    dinle = True
+                    Talking = False
+                    Listening = True
                     if (glob_LastMessageTime != None and glob_LastMessageTime != ''):
                         if (glob_LastMessageTime != LastMessageTime):
                             glob_LastMessageTime = LastMessageTime;
                             logger.debug(output)
                             if ('kind' in jsonObject and jsonObject['kind'] == 'bildirim'):
-                                konus = True
+                                Talking = True
                             if ('WaitForResponse' not in jsonObject):
-                                dinle = False
+                                Listening = False
     
-                            logger.debug('mesaj_ici_bildirim gelen yanit > 0 oldugundan setAll calistirildi.')
-                            setAll(konus, dinle)
+                            logger.debug('CheckNotifications gelen yanit > 0 oldugundan ShowAll calistirildi.')
+                            ShowAll(Talking, Listening)
                     else:
                         glob_LastMessageTime = LastMessageTime
                 except Exception as e:
@@ -340,7 +339,7 @@ def DING():
     if UsePins: led.cyan()
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
 
-def tetiklendi():
+def Triggered():
     try:        
         logger.debug("Bir şeyler söyle!")
         with m as source: audio = r.listen(source, timeout=5)
@@ -359,7 +358,7 @@ def tetiklendi():
                 data = format(value)
             if(data and data != None and data != ''):
                 if UsePins: led.green()
-                doWork(data, True, True)
+                SendMessage(data, True, True)
         except sr.UnknownValueError:
             logger.warning("Eyvah! Sesi yakalayamadım!")
             if UsePins: led.red()
@@ -379,13 +378,11 @@ def detect_callback():
     logger.debug("...")
     delete_last_lines()
     detector.terminate()
-    #tetiklendiThread = Thread(target = tetiklendi)
-    #tetiklendiThread.start()
     #DING()
     DINGThread = Thread(target = DING)
     DINGThread.start()
 
-    tetiklendi()
+    Triggered()
     logger.debug('Artex Sözcüğü Dinleniyor... Çıkış için Ctrl+C basın')
     detector.start(detected_callback=detect_callback, sleep_time=0.03)
 
@@ -393,10 +390,10 @@ def detect_callback():
 #signal.signal(signal.SIGINT, signal_handler)
 
 if __name__ == "__main__":
-    t1 = Thread(target = mesaj_ici_bildirim)
-    t1.setDaemon(True)
+    ThreadCheckNotifications = Thread(target = CheckNotifications)
+    ThreadCheckNotifications.setDaemon(True)
 
-    Giris()
+    Login()
 
     logger.debug('Artex Sözcüğü Dinleniyor... Çıkış için Ctrl+C basın')
 
