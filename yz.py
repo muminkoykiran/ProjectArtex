@@ -40,7 +40,7 @@ formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
 ch.setFormatter(formatter)
 
 # logger için konsol
-logger.addHandler(ch)
+#logger.addHandler(ch)
  
 # Log kayıt yolunu belirleme
 logging.basicConfig(filename='artex.log', filemode='w', level=log_level)
@@ -55,7 +55,6 @@ if len(sys.argv) == 1:
     logger.error("HATA: özel bir model ismi gerekiyor")
     logger.info("ÖRNEK KULLANIM: python3 yz.py modeldosyasi.model")
     sys.exit(-1)
-
 
 interrupted = False
 
@@ -98,7 +97,9 @@ model = sys.argv[1]
 detector = snowboydecoder.HotwordDetector(model, sensitivity=0.4)
 
 jar = requests.cookies.RequestsCookieJar()
+requests.packages.urllib3.disable_warnings()
 s = requests.Session()
+s.verify = dir_path + "/cert.crt"
 def Web_Request(post_url, postData, cookie_save, WantEncryption):
     try:
         global s, CryptionKey, jar
@@ -121,15 +122,15 @@ def Web_Request(post_url, postData, cookie_save, WantEncryption):
 
         return out
     except requests.exceptions.Timeout as e:
-        logger.error("exceptions.Timeout" + e)
+        logger.error("exceptions.Timeout => " + e)
     except requests.exceptions.TooManyRedirects as e:
-        logger.error("exceptions.TooManyRedirects" + e)
+        logger.error("exceptions.TooManyRedirects => " + e)
     except requests.exceptions.HTTPError as e:
-        logger.error("exceptions.HTTPError" + e)
+        logger.error("exceptions.HTTPError => " + e)
     except requests.exceptions.RequestException as e:
-        logger.error("exceptions.RequestException" + e)
+        logger.error("exceptions.RequestException => " + e)
     except:
-        logger.error("sys.exc_info()[0]" + str(sys.exc_info()[0]))
+        logger.error("sys.exc_info()[0] => " + str(sys.exc_info()[0]))
 
 def getCryptionKey():
     try:
@@ -141,11 +142,9 @@ def getCryptionKey():
         logger.debug(CryptionKey)
         return True
     except:
-        logger.error("sys.exc_info()[0]" + str(sys.exc_info()[0]))
+        logger.error("sys.exc_info()[0] => " + str(sys.exc_info()[0]))
 
 def Login():
-    getCryptionKey()
-
     if(getCryptionKey() != True):
         logger.error("getCryptionKey sırasında hata oluştu baştan başlatın!")
         return
@@ -209,10 +208,10 @@ def ShowAll(Talking=True, Listening=True):
                 
                 if (i == count):
                     if ('msj' in message and message['msj'] != None and message['msj'] != ""):
-                        logger.debug(kendi_ismim + "-> " + message['msj'] + " | " + dt)
+                        logger.debug(kendi_ismim + " -> " + message['msj'] + " | " + dt)
 
                     if (message['cvp'] != None and message['cvp'] != ""):
-                        logger.debug(bot_ismi + "-> " + message['cvp'] + " | " + dt)
+                        logger.debug(bot_ismi + " -> " + message['cvp'] + " | " + dt)
 
                     #if (message.platform == "csharp"):
                     #    durum = message.isdurumu
