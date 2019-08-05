@@ -100,6 +100,7 @@ jar = requests.cookies.RequestsCookieJar()
 requests.packages.urllib3.disable_warnings()
 s = requests.Session()
 s.verify = dir_path + "/cert.crt"
+
 def Web_Request(post_url, postData, cookie_save, WantEncryption):
     try:
         global s, CryptionKey, jar
@@ -213,7 +214,7 @@ def ShowAll(Talking=True, Listening=True):
                     if (message['cvp'] != None and message['cvp'] != ""):
                         logger.debug(bot_ismi + " -> " + message['cvp'] + " | " + dt)
 
-                    #if (message.platform == "csharp"):
+                    #if (message.platform == "orangepi"):
                     #    durum = message.isdurumu
                     #    if (message.csharp_eval != "" and message.csharp_eval != None):
                     #        csharp_eval = UrlDecode(message.csharp_eval)
