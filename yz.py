@@ -99,7 +99,7 @@ detector = snowboydecoder.HotwordDetector(model, sensitivity=0.4)
 jar = requests.cookies.RequestsCookieJar()
 requests.packages.urllib3.disable_warnings()
 s = requests.Session()
-s.verify = dir_path + "/cert.crt"
+s.verify = dir_path + "/certificate.crt"
 
 def Web_Request(post_url, postData, cookie_save, WantEncryption):
     try:
@@ -133,7 +133,7 @@ def Web_Request(post_url, postData, cookie_save, WantEncryption):
     except:
         logger.error("sys.exc_info()[0] => " + str(sys.exc_info()[0]))
 
-def getCryptionKey():
+def GetCryptionKey():
     try:
         global CryptionKey
         payload = {'sayfa': 'yz_CryptionKey'}
@@ -146,8 +146,8 @@ def getCryptionKey():
         logger.error("sys.exc_info()[0] => " + str(sys.exc_info()[0]))
 
 def Login():
-    if(getCryptionKey() != True):
-        logger.error("getCryptionKey sırasında hata oluştu baştan başlatın!")
+    if(GetCryptionKey() != True):
+        logger.error("GetCryptionKey sırasında hata oluştu baştan başlatın!")
         return
 
     payload = {'pltfrm': 'orangepi', 'Username': Username, 'Password': Password, 'Remember': 'on'}
@@ -224,7 +224,7 @@ def ShowAll(Talking=True, Listening=True):
                 IsSpeaking(Listening)
         except ValueError:
             logger.error("bu bir json değil")
-            getCryptionKey()
+            GetCryptionKey()
 
 intance = vlc.Instance()
 player = vlc.MediaPlayer()
@@ -270,6 +270,7 @@ def CheckNotifications():
         try:
             output = Web_Request(BaseUrl + 'main', payload, True, True)
             #logger.debug('CheckNotifications Yanit Geldi')
+            logger.debug(output)
             #if UsePins: led.yellow()
             if (output and output != None and output != ''):
                 try:
@@ -292,11 +293,11 @@ def CheckNotifications():
                         GlobalLastMessageTime = LastMessageTime
                 except Exception as e:
                     logger.error("bir hata oldu sanki json ile ilgili olabilir.")
-                    getCryptionKey()
+                    GetCryptionKey()
                     pass
         except (RuntimeError, TypeError, NameError):
             logger.error("bir hata oldu sanki :))")
-            getCryptionKey()
+            GetCryptionKey()
             pass
 
 def DING():

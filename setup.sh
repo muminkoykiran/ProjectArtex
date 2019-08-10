@@ -112,4 +112,29 @@ read Salt
 echo Salt = \"$Salt\" >> creds.py
 
 
+# My shell variable 
+f=$BaseUrl
+ 
+## Remove protocol part of url  ##
+f="${f#http://}"
+f="${f#https://}"
+f="${f#ftp://}"
+f="${f#scp://}"
+f="${f#scp://}"
+f="${f#sftp://}"
+ 
+## Remove username and/or username:password part of URL  ##
+f="${f#*:*@}"
+f="${f#*@}"
+ 
+## Remove rest of urls ##
+f=${f%%/*}
+ 
+## Show domain name only ##
+echo "$f"
+
+echo | openssl s_client -servername $f -connect $f:443 |\
+  sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > certificate.crt
+
+
 echo "Yeniden baslatabilirsiniz."
