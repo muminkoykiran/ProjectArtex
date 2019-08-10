@@ -101,17 +101,17 @@ requests.packages.urllib3.disable_warnings()
 s = requests.Session()
 s.verify = dir_path + "/certificate.crt"
 
-def Web_Request(post_url, postData, cookie_save, WantEncryption):
+def Web_Request(URL, Data, WantEncryption):
     try:
         global s, CryptionKey, jar
         payload = None
         if(WantEncryption == True):
-            payload = urlencode(postData, quote_via=quote_plus)
+            payload = urlencode(Data, quote_via=quote_plus)
             sifrele = CryptoClass.encrypt(payload, CryptionKey)
             payload = {'_yzCryption': sifrele}
         else:
-            payload = postData
-        req = s.post(post_url, data=payload, cookies=jar)
+            payload = Data
+        req = s.post(URL, data=payload, cookies=jar)
         jar = req.cookies
         req.raise_for_status()
 
@@ -137,7 +137,7 @@ def GetCryptionKey():
     try:
         global CryptionKey
         payload = {'sayfa': 'yz_CryptionKey'}
-        jsonOutput = Web_Request(BaseUrl + 'main', payload, True, False)
+        jsonOutput = Web_Request(BaseUrl + 'main', payload, False)
         output = json.loads(jsonOutput)
         CryptionKey = CryptoClass.decrypt(output, Salt.encode())
         logger.debug(CryptionKey)
@@ -151,7 +151,7 @@ def Login():
         return
 
     payload = {'pltfrm': 'orangepi', 'Username': Username, 'Password': Password, 'Remember': 'on'}
-    jsonOutput = Web_Request(BaseUrl + 'login', payload, True, True)
+    jsonOutput = Web_Request(BaseUrl + 'login', payload, True)
 
     logger.debug(jsonOutput)
     output = json.loads(jsonOutput)
@@ -178,7 +178,7 @@ def Login():
 def SendMessage(Message="", Talking=True, Listening=True):
     logger.debug("SendMessage Calisti, Gonderilecek Mesaj: '" + Message + "'")
     payload = {'msg': Message, 'pltfrm': 'orangepi'}
-    output = Web_Request(BaseUrl + 'message.php', payload, True, True)
+    output = Web_Request(BaseUrl + 'message.php', payload, True)
     logger.debug('SendMessage Yanit Geldi -> ' + output)
     ShowAll(Talking, Listening)
 
@@ -186,7 +186,7 @@ def ShowAll(Talking=True, Listening=True):
     global GlobalLastMessageTime
     logger.debug('ShowAll Calisti')
     payload = {'all': '1'}
-    output = Web_Request(BaseUrl + 'message.php', payload, True, True)
+    output = Web_Request(BaseUrl + 'message.php', payload, True)
     #logger.debug(output)
     logger.debug('ShowAll Yanit Geldi')
 
@@ -268,7 +268,7 @@ def CheckNotifications():
         #logger.debug('CheckNotifications Calisti')
         payload = {'sayfa': 'mesaj_ici_bildirim'}
         try:
-            output = Web_Request(BaseUrl + 'main', payload, True, True)
+            output = Web_Request(BaseUrl + 'main', payload, True)
             #logger.debug('CheckNotifications Yanit Geldi')
             logger.debug(output)
             #if UsePins: led.yellow()
@@ -358,6 +358,5 @@ if __name__ == "__main__":
 
     logger.debug('Artex Sözcüğü Dinleniyor... Çıkış için Ctrl+C basın')
 
-    # Main Loop
     detector.start(detected_callback=detect_callback,interrupt_check=interrupt_callback,sleep_time=0.03)
     detector.terminate()
