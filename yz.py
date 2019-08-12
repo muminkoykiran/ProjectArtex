@@ -156,10 +156,10 @@ def Login():
     logger.debug(jsonOutput)
     output = json.loads(jsonOutput)
 
-    if (output == "yanlis"):
-        logger.error("Kullanici Adi veya Parola Yanlis!")
+    if (output['type'] == "danger"):
+        logger.error(output['message'])
         sys.exit(1)
-    elif (output == "basarili"):
+    elif (output['type'] == "success"):
         logger.debug("Giris Islemi Basarili!")
         if UsePins: led.magenta()
         SendMessage("", False, False)
