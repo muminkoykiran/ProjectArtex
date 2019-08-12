@@ -266,7 +266,7 @@ def CheckNotifications():
         global GlobalLastMessageTime
         time.sleep(1)
         #logger.debug('CheckNotifications Calisti')
-        payload = {'sayfa': 'mesaj_ici_bildirim'}
+        payload = {'sayfa': 'CheckNotifications'}
         try:
             output = Web_Request(BaseUrl + 'main', payload, True)
             #logger.debug('CheckNotifications Yanit Geldi')
