@@ -1,7 +1,7 @@
 import CryptoStuffClass
 import snowboydecoder
 import signal
-from urllib.parse import urlencode, quote_plus
+from urllib.parse import urlencode, quote_plus, unquote
 from creds import *
 import requests
 import sys
@@ -182,8 +182,23 @@ def SendMessage(Message="", Talking=True, Listening=True):
     logger.debug('SendMessage Yanit Geldi -> ' + output)
     ShowAll(Talking, Listening)
 
+def StartBackground(Status, PythonCode = None):
+    logger.debug("StartBackground Çalıştı")
+
+    if Status == "rebootSystem":
+        import os
+        os.system("reboot")
+    elif Status == "PythonExec":
+        exec(PythonCode)
+    elif Status == "rebootYourself":
+        import os
+        os.system("systemctl reload Artex.service")
+    else:
+        logger.debug("do something")
+
+firstStart = True
 def ShowAll(Talking=True, Listening=True):
-    global GlobalLastMessageTime
+    global GlobalLastMessageTime, firstStart
     logger.debug('ShowAll Calisti')
     payload = {'all': '1'}
     output = Web_Request(BaseUrl + 'message.php', payload, True)
@@ -195,33 +210,45 @@ def ShowAll(Talking=True, Listening=True):
             array = json.loads(output)
 
             datas = array['datas']
-            messages = array['messages']
-            kendi_ismim = datas['kendi_ismim']
-            bot_ismi = datas['bot_ismi']
-            ses_ac_kapa = datas['ses_ac_kapa']
-            ses_data = datas['ses_data']
-            ses_api = datas['ses_api']
+            Messages = array['messages']
+            OwnerName = datas['kendi_ismim']
+            BotName = datas['bot_ismi']
+            Status = datas['son_islem']
+            VoiceOpenOff = datas['ses_ac_kapa']
+            VoiceData = datas['ses_data']
+            VoiceApi = datas['ses_api']
             GlobalLastMessageTime = datas['LastMessageTime']
 
-            count, i = len(messages), 1
-            for message in messages:
+            count, i = len(Messages), 1
+            for message in Messages:
                 dt = message['time']
                 
                 if (i == count):
                     if ('msj' in message and message['msj'] != None and message['msj'] != ""):
-                        logger.debug(kendi_ismim + " -> " + message['msj'] + " | " + dt)
+                        logger.debug(OwnerName + " -> " + message['msj'] + " | " + dt)
 
                     if (message['cvp'] != None and message['cvp'] != ""):
-                        logger.debug(bot_ismi + " -> " + message['cvp'] + " | " + dt)
+                        logger.debug(BotName + " -> " + message['cvp'] + " | " + dt)
 
-                    #if (message.platform == "orangepi"):
-                    #    durum = message.isdurumu
-                    #    if (message.csharp_eval != "" and message.csharp_eval != None):
-                    #        csharp_eval = UrlDecode(message.csharp_eval)
+                    if (message['platform'] == "orangepi"):
+                        logger.debug(message)
+                        PythonCode = None
+
+                        if ('PythonCode' in message and message['PythonCode'] != None and message['PythonCode'] != ""):
+                            PythonCode = unquote(message['PythonCode'])
+                            logger.debug(PythonCode)
+
+                        if(firstStart == False):
+                            StartBackground(Status, PythonCode)
+                            
                 i += 1
-            if(Talking == True):
-                Talk(ses_data, ses_api)
+
+            if(VoiceOpenOff == True and Talking == True):
+                Talk(VoiceData, VoiceApi)
                 IsSpeaking(Listening)
+
+            firstStart = False
+
         except ValueError:
             logger.error("bu bir json değil")
             GetCryptionKey()
@@ -229,10 +256,10 @@ def ShowAll(Talking=True, Listening=True):
 intance = vlc.Instance()
 player = vlc.MediaPlayer()
 
-def Talk(ses_data, ses_api):
-    hash_object = sha1(b''+ses_data.encode('utf-8').strip())
+def Talk(VoiceData, VoiceApi):
+    hash_object = sha1(b''+VoiceData.encode('utf-8').strip())
     hash_dig = hash_object.hexdigest()
-    ses_path = dir_path + "/sesler/" + ses_api + "/"
+    ses_path = dir_path + "/sesler/" + VoiceApi + "/"
 
     if(not os.path.exists(ses_path)):
         logger.debug("Ses klasörü bulunamadı, oluşturuluyor..")
@@ -242,7 +269,7 @@ def Talk(ses_data, ses_api):
 
     if(not os.path.isfile(file_path)):
         logger.debug("Ses dosyası bulunamadı, indiriliyor..")
-        req = s.post(BaseUrl + "main?sayfa=ses&ses=" + ses_data + "&pltfrm=csharp&ses_api=" + ses_api, stream=True)
+        req = s.post(BaseUrl + "main?sayfa=ses&ses=" + VoiceData + "&pltfrm=csharp&ses_api=" + VoiceApi, stream=True)
         with open(file_path, 'wb') as f:
             shutil.copyfileobj(req.raw, f)
     if UsePins: led.blue()
