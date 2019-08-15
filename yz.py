@@ -213,7 +213,6 @@ def ShowAll(Talking=True, Listening=True):
             Messages = array['messages']
             OwnerName = datas['kendi_ismim']
             BotName = datas['bot_ismi']
-            Status = datas['son_islem']
             VoiceOpenOff = datas['ses_ac_kapa']
             VoiceData = datas['ses_data']
             VoiceApi = datas['ses_api']
@@ -233,6 +232,7 @@ def ShowAll(Talking=True, Listening=True):
                     if (message['platform'] == "orangepi"):
                         logger.debug(message)
                         PythonCode = None
+                        Status = message['isdurumu']
 
                         if ('PythonCode' in message and message['PythonCode'] != None and message['PythonCode'] != ""):
                             PythonCode = unquote(message['PythonCode'])
