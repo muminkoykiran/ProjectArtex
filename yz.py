@@ -99,7 +99,7 @@ detector = snowboydecoder.HotwordDetector(model, sensitivity=0.4)
 jar = requests.cookies.RequestsCookieJar()
 requests.packages.urllib3.disable_warnings()
 s = requests.Session()
-s.verify = dir_path + "/certificate.crt"
+#s.verify = dir_path + "/certificate.crt"
 
 def Web_Request(URL, Data, WantEncryption):
     try:
@@ -123,13 +123,13 @@ def Web_Request(URL, Data, WantEncryption):
 
         return out
     except requests.exceptions.Timeout as e:
-        logger.error("exceptions.Timeout => " + e)
+        logger.error("Timeout => " + str(e))
     except requests.exceptions.TooManyRedirects as e:
-        logger.error("exceptions.TooManyRedirects => " + e)
+        logger.error("TooManyRedirects => " + str(e))
     except requests.exceptions.HTTPError as e:
-        logger.error("exceptions.HTTPError => " + e)
+        logger.error("HTTPError => " + str(e))
     except requests.exceptions.RequestException as e:
-        logger.error("exceptions.RequestException => " + e)
+        logger.error("RequestException => " + str(e))
     except:
         logger.error("sys.exc_info()[0] => " + str(sys.exc_info()[0]))
 
@@ -144,6 +144,7 @@ def GetCryptionKey():
         return True
     except:
         logger.error("sys.exc_info()[0] => " + str(sys.exc_info()[0]))
+        return False
 
 def Login():
     if(GetCryptionKey() != True):
