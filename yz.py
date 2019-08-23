@@ -97,7 +97,7 @@ model = sys.argv[1]
 detector = snowboydecoder.HotwordDetector(model, sensitivity=0.4)
 
 jar = requests.cookies.RequestsCookieJar()
-requests.packages.urllib3.disable_warnings()
+#requests.packages.urllib3.disable_warnings()
 s = requests.Session()
 #s.verify = dir_path + "/certificate.crt"
 
@@ -113,6 +113,7 @@ def Web_Request(URL, Data, WantEncryption):
             payload = Data
         req = s.post(URL, data=payload, cookies=jar)
         jar = req.cookies
+        #print(jar)
         req.raise_for_status()
 
         out = None
@@ -130,8 +131,8 @@ def Web_Request(URL, Data, WantEncryption):
         logger.error("HTTPError => " + str(e))
     except requests.exceptions.RequestException as e:
         logger.error("RequestException => " + str(e))
-    except:
-        logger.error("sys.exc_info()[0] => " + str(sys.exc_info()[0]))
+    except Exception:
+        logger.error("Fatal error in Web_Request", exc_info=True)
 
 def GetCryptionKey():
     try:
@@ -142,8 +143,8 @@ def GetCryptionKey():
         CryptionKey = CryptoClass.decrypt(output, Salt.encode())
         logger.debug(CryptionKey)
         return True
-    except:
-        logger.error("sys.exc_info()[0] => " + str(sys.exc_info()[0]))
+    except Exception:
+        logger.error("Fatal error in GetCryptionKey", exc_info=True)
         return False
 
 def Login():
@@ -302,17 +303,27 @@ def CheckNotifications():
             #if UsePins: led.yellow()
             if (output and output != None and output != ''):
                 try:
-                    jsonObject = json.loads(output)
-                    LastMessageTime = jsonObject['LastMessageTime']
                     Talking = False
                     Listening = False
+
+                    jsonObject = json.loads(output)
+
+                    type = jsonObject['type']
+                    code = jsonObject['code']
+                    data = jsonObject['data']
+
+                    if (code == 72):
+                        Login()
+                        continue
+
+                    LastMessageTime = data['LastMessageTime']
                     if (GlobalLastMessageTime != None and GlobalLastMessageTime != ''):
                         if (GlobalLastMessageTime != LastMessageTime):
                             GlobalLastMessageTime = GlobalLastMessageTime;
                             logger.debug(output)
-                            if ('kind' in jsonObject and jsonObject['kind'] == 'bildirim'):
+                            if ('kind' in data and data['kind'] == 'bildirim'):
                                 Talking = True
-                            if ('WaitForResponse' in jsonObject and jsonObject['WaitForResponse'] == True):
+                            if ('WaitForResponse' in data and data['WaitForResponse'] == True):
                                 Listening = True
     
                             logger.debug('CheckNotifications gelen yanit > 0 oldugundan ShowAll calistirildi.')
