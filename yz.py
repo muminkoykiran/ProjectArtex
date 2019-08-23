@@ -3,7 +3,7 @@ import snowboydecoder
 import signal
 from urllib.parse import urlencode, quote_plus, unquote
 from creds import *
-import requests
+import requests, http.cookiejar
 import sys
 import speech_recognition as sr
 from threading import Thread
@@ -96,14 +96,19 @@ playlists = set(['pls', 'm3u', 'ash'])
 model = sys.argv[1]
 detector = snowboydecoder.HotwordDetector(model, sensitivity=0.4)
 
-jar = requests.cookies.RequestsCookieJar()
+cookieJar = http.cookiejar.MozillaCookieJar(filename = dir_path + "/cookies.txt")
+try:
+    cookieJar.load()
+except FileNotFoundError:
+    cookieJar.save()
 #requests.packages.urllib3.disable_warnings()
 s = requests.Session()
 #s.verify = dir_path + "/certificate.crt"
+s.cookies = cookieJar
 
 def Web_Request(URL, Data, WantEncryption):
     try:
-        global s, CryptionKey, jar
+        global s, CryptionKey, cookieJar
         payload = None
         if(WantEncryption == True):
             payload = urlencode(Data, quote_via=quote_plus)
@@ -111,9 +116,9 @@ def Web_Request(URL, Data, WantEncryption):
             payload = {'_yzCryption': sifrele}
         else:
             payload = Data
-        req = s.post(URL, data=payload, cookies=jar)
-        jar = req.cookies
-        #print(jar)
+
+        req = s.post(URL, data=payload)
+        cookieJar.save()
         req.raise_for_status()
 
         out = None
@@ -312,6 +317,7 @@ def CheckNotifications():
                     code = jsonObject['code']
                     data = jsonObject['data']
 
+                    # Bildirim kontrolü sırasında oturum silinirse tekrardan login olmak için
                     if (code == 72):
                         Login()
                         continue
