@@ -5,3 +5,4 @@ SpeechRecognition
 pyaudio
 python-vlc
 pyA20
+cookiejar
