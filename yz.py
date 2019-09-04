@@ -301,7 +301,7 @@ def CheckNotifications():
         try:
             output = Web_Request(BaseUrl + 'main', payload, True)
             #logger.debug('CheckNotifications Yanit Geldi')
-            logger.debug(output)
+            #logger.debug(output)
             #if UsePins: led.yellow()
             if (output and output != None and output != ''):
                 try:
