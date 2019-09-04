@@ -10,7 +10,7 @@
 # Description: Start / Stop Artex Service
 ### END INIT INFO
 
-exec > /var/log/artex.log 2>&1
+exec >> /var/log/artex.log 2>&1
 case "$1" in
 
 start)
