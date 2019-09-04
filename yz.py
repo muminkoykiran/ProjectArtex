@@ -45,9 +45,6 @@ ch.setFormatter(formatter)
 # Log kayıt yolunu belirleme
 logging.basicConfig(filename='artex.log', filemode='w', level=log_level)
 
-CURSOR_UP_ONE = '\x1b[1A'
-ERASE_LINE = '\x1b[2K'
-
 if(UsePins):
     from rgbControlClass import RGBControl
 
@@ -75,8 +72,8 @@ if(UsePins):
 
 def delete_last_lines(n=1):
     for _ in range(n):
-        sys.stdout.write(CURSOR_UP_ONE)
-        sys.stdout.write(ERASE_LINE)
+        sys.stdout.write('\x1b[1A') #CURSOR_UP_ONE
+        sys.stdout.write('\x1b[2K') #ERASE_LINE
 
 r = sr.Recognizer()
 m = sr.Microphone()
