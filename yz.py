@@ -349,7 +349,7 @@ def DING():
 def Triggered():
     try:        
         logger.debug("Bir şeyler söyle!")
-        with m as source: audio = r.listen(source, timeout=5)
+        with m as source: audio = r.listen(source, timeout=3)
         if UsePins: led.yellow()
         logger.debug("Yakaladım! Şimdi sesi tanımaya çalışıyorum...")
         try:
@@ -383,14 +383,11 @@ def detect_callback():
     delete_last_lines()
     logger.debug("...")
     delete_last_lines()
-    detector.terminate()
-    
+
     DINGThread = Thread(target = DING)
     DINGThread.start()
 
     Triggered()
-    logger.debug('Artex Sözcüğü Dinleniyor... Çıkış için Ctrl+C basın')
-    detector.start(detected_callback=detect_callback, sleep_time=0.03)
 
 if __name__ == "__main__":
     ThreadCheckNotifications = Thread(target = CheckNotifications)
@@ -400,5 +397,5 @@ if __name__ == "__main__":
 
     logger.debug('Artex Sözcüğü Dinleniyor... Çıkış için Ctrl+C basın')
 
-    detector.start(detected_callback=detect_callback,interrupt_check=interrupt_callback,sleep_time=0.03)
+    detector.start(detected_callback=detect_callback, interrupt_check=interrupt_callback, sleep_time=0.03)
     detector.terminate()
