@@ -41,7 +41,7 @@ ch.setFormatter(formatter)
 
 # logger için konsol
 #logger.addHandler(ch)
- 
+
 # Log kayıt yolunu belirleme
 logging.basicConfig(filename='artex.log', filemode='w', level=log_level)
 
@@ -84,7 +84,7 @@ m = sr.Microphone()
 
 logger.warning("Biraz sessiz kalın, Lütfen...")
 with m as source: r.adjust_for_ambient_noise(source)
-logger.debug("Minimum threshold enerjisi {} olarak tanımlandı.".format(r.energy_threshold))
+logger.debug(f"Minimum threshold enerjisi {r..energy_threshold} olarak tanımlandı.")
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 GlobalLastMessageTime = ''
@@ -126,13 +126,13 @@ def Web_Request(URL, Data, WantEncryption):
 
         return out
     except requests.exceptions.Timeout as e:
-        logger.error("Timeout => " + str(e))
+        logger.error(f"Timeout => {e}")
     except requests.exceptions.TooManyRedirects as e:
-        logger.error("TooManyRedirects => " + str(e))
+        logger.error(f"TooManyRedirects => {e})
     except requests.exceptions.HTTPError as e:
-        logger.error("HTTPError => " + str(e))
+        logger.error(f"HTTPError => {e}")
     except requests.exceptions.RequestException as e:
-        logger.error("RequestException => " + str(e))
+        logger.error(f"RequestException => {e}")
     except Exception:
         logger.error("Fatal error in Web_Request", exc_info=True)
 
@@ -155,7 +155,7 @@ def Login():
         return
 
     payload = {'pltfrm': 'orangepi', 'Username': Username, 'Password': Password, 'Remember': 'on'}
-    jsonOutput = Web_Request(BaseUrl + 'login', payload, True)
+    jsonOutput = Web_Request(f"{BaseUrl}login", payload, True)
 
     logger.debug(jsonOutput)
     output = json.loads(jsonOutput)
@@ -169,7 +169,7 @@ def Login():
         SendMessage("", False, False)
         ThreadCheckNotifications.start()
         #burada mesaj gonderme fonksiyonunu calistiracak
-        
+
         #if (ApplicationDeployment.IsNetworkDeployed)
         #    set_setting("csharp_version", ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString())
     elif (output == "yok"):
@@ -180,10 +180,10 @@ def Login():
     if UsePins: led.off()
 
 def SendMessage(Message="", Talking=True, Listening=True):
-    logger.debug("SendMessage Calisti, Gonderilecek Mesaj: '" + Message + "'")
+    logger.debug(f"SendMessage Calisti, Gonderilecek Mesaj: '{Message }'")
     payload = {'msg': Message, 'pltfrm': 'orangepi'}
-    output = Web_Request(BaseUrl + 'message.php', payload, True)
-    logger.debug('SendMessage Yanit Geldi -> ' + output)
+    output = Web_Request(f"{BaseUrl}message.php", payload, True)
+    logger.debug(f"SendMessage Yanit Geldi -> {output}")
     ShowAll(Talking, Listening)
 
 def StartBackground(Status, PythonCode = None):
@@ -205,7 +205,7 @@ def ShowAll(Talking=True, Listening=True):
     global GlobalLastMessageTime, firstStart
     logger.debug('ShowAll Calisti')
     payload = {'all': '1'}
-    output = Web_Request(BaseUrl + 'message.php', payload, True)
+    output = Web_Request(f"{BaseUrl}message.php", payload, True)
     #logger.debug(output)
     logger.debug('ShowAll Yanit Geldi')
 
@@ -225,13 +225,13 @@ def ShowAll(Talking=True, Listening=True):
             count, i = len(Messages), 1
             for message in Messages:
                 dt = message['time']
-                
+
                 if (i == count):
                     if ('msj' in message and message['msj'] != None and message['msj'] != ""):
-                        logger.debug(OwnerName + " -> " + message['msj'] + " | " + dt)
+                        logger.debug(f"{OwnerName} -> {message['msj']} | {dt}")
 
                     if (message['cvp'] != None and message['cvp'] != ""):
-                        logger.debug(BotName + " -> " + message['cvp'] + " | " + dt)
+                        logger.debug(f"{BotName} -> {message['cvp']} | {dt}")
 
                     if (message['platform'] == "orangepi"):
                         logger.debug(message)
@@ -244,7 +244,7 @@ def ShowAll(Talking=True, Listening=True):
 
                         if(firstStart == False):
                             StartBackground(Status, PythonCode)
-                            
+
                 i += 1
 
             if(VoiceOpenOff == True and Talking == True):
@@ -263,17 +263,17 @@ player = vlc.MediaPlayer()
 def Talk(VoiceData, VoiceApi):
     hash_object = sha1(b''+VoiceData.encode('utf-8').strip())
     hash_dig = hash_object.hexdigest()
-    ses_path = dir_path + "/sesler/" + VoiceApi + "/"
+    ses_path = f"{dir_path}/sesler/{VoiceApi}/"
 
     if(not os.path.exists(ses_path)):
         logger.debug("Ses klasörü bulunamadı, oluşturuluyor..")
         os.makedirs(ses_path)
 
-    file_path = ses_path + hash_dig + ".mp3"
+    file_path = f"{ses_path}{hash_dig}.mp3"
 
     if(not os.path.isfile(file_path)):
         logger.debug("Ses dosyası bulunamadı, indiriliyor..")
-        req = s.post(BaseUrl + "main?sayfa=ses&ses=" + VoiceData + "&pltfrm=csharp&ses_api=" + VoiceApi, stream=True)
+        req = s.post(f"{BaseUrl}main?sayfa=ses&ses={VoiceData}&pltfrm=csharp&ses_api={VoiceApi}", stream=True)
         with open(file_path, 'wb') as f:
             shutil.copyfileobj(req.raw, f)
     if UsePins: led.blue()
@@ -285,7 +285,7 @@ def IsSpeaking(Listening=True):
     time.sleep(0.5)
     while(player.is_playing() == True):
         pass
-    
+
     if(Listening == True):
         DING()
         Triggered()
@@ -328,7 +328,7 @@ def CheckNotifications():
                                 Talking = True
                             if ('WaitForResponse' in data and data['WaitForResponse'] == True):
                                 Listening = True
-    
+
                             logger.debug('CheckNotifications gelen yanit > 0 oldugundan ShowAll calistirildi.')
                             ShowAll(Talking, Listening)
                     else:
@@ -347,14 +347,14 @@ def DING():
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
 
 def Triggered():
-    try:        
+    try:
         logger.debug("Bir şeyler söyle!")
         with m as source: audio = r.listen(source, timeout=3)
         if UsePins: led.yellow()
         logger.debug("Yakaladım! Şimdi sesi tanımaya çalışıyorum...")
         try:
             value = r.recognize_google(audio, language="tr-TR")
-            logger.debug("Minimum threshold enerjisi {} olarak tanımlandı.".format(r.energy_threshold))
+            logger.debug(f"Minimum threshold enerjisi {r.energy_threshold} olarak tanımlandı.")
 
             if str is bytes:
                 logger.debug(u"P2Dediğin: {}".format(value).encode("utf-8"))
@@ -370,7 +370,7 @@ def Triggered():
             if UsePins: led.red()
             snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
         except sr.RequestError as e:
-            logger.error("Ah be! Google Ses Tanıma servisinden sonuç isteği yapılamadı; {}".format(e))
+            logger.error(f"Ah be! Google Ses Tanıma servisinden sonuç isteği yapılamadı; {e}")
             if UsePins: led.red()
             snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     except sr.WaitTimeoutError:
