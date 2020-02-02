@@ -98,6 +98,9 @@ try:
     cookieJar.load()
 except FileNotFoundError:
     cookieJar.save()
+except http.cookiejar.LoadError:
+    cookieJar.save()
+
 #requests.packages.urllib3.disable_warnings()
 s = requests.Session()
 #s.verify = dir_path + "/certificate.crt"
