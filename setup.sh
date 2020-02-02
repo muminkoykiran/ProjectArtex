@@ -12,21 +12,20 @@ sudo apt-get install python3-setuptools
 sudo apt-get install vlc
 sudo apt-get install flac
 
+sudo apt-get install portaudio19-dev python-all-dev python3-all-dev
+
+sudo apt-get install libatlas-base-dev
+
+sudo apt-get install python-pyaudio python3-pyaudio sox
+
+# install prerequisite 
+sudo apt-get install libpcre3-dev
+
 sudo pip install --upgrade pip
 sudo pip3 install --upgrade pip
 
 sudo pip install -r requirements.txt
 sudo pip3 install -r requirements.txt
-
-sudo apt-get install portaudio19-dev python-all-dev python3-all-dev
-
-sudo apt-get install libatlas-base-dev
-
-#apt-get install swig3.0 python-pyaudio python3-pyaudio sox
-sudo apt-get install python-pyaudio python3-pyaudio
-
-# install prerequisite 
-sudo apt-get install libpcre3-dev
 
 # http://weegreenblobbie.com/?p=263
 # download swig 3.0.12
