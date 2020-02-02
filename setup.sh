@@ -23,6 +23,7 @@ sudo apt-get install portaudio19-dev python-all-dev python3-all-dev
 sudo apt-get install libatlas-base-dev
 
 #apt-get install swig3.0 python-pyaudio python3-pyaudio sox
+sudo apt-get install python-pyaudio python3-pyaudio
 
 # install prerequisite 
 sudo apt-get install libpcre3-dev
