@@ -86,6 +86,7 @@ cd ../../..
 sudo chmod +x $ARTEX_PATH/Artex
 
 cp $ARTEX_PATH/resources/Artex.service /etc/systemd/system/
+mkdir -p /etc/systemd/system/Artex.service.d/
 cp $ARTEX_PATH/resources/usergroup-root.conf /etc/systemd/system/Artex.service.d/
 systemctl daemon-reload
 systemctl enable Artex.service
