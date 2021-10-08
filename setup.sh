@@ -5,23 +5,23 @@ export ARTEX_PATH=/opt/ProjectArtex
 
 sudo apt update
 
-sudo apt-get install python-dev -y
-sudo apt-get install python3-dev -y
+sudo apt-get install python-dev
+sudo apt-get install python3-dev
 
-sudo apt-get install python-pip  -y
-sudo apt-get install python3-pip -y
-sudo apt-get install python3-setuptools -y
-sudo apt-get install vlc -y
-sudo apt-get install flac -y
+sudo apt-get install python-pip 
+sudo apt-get install python3-pip
+sudo apt-get install python3-setuptools
+sudo apt-get install vlc
+sudo apt-get install flac
 
-sudo apt-get install portaudio19-dev python-all-dev python3-all-dev -y
+sudo apt-get install portaudio19-dev python-all-dev python3-all-dev
 
-sudo apt-get install libatlas-base-dev -y
+sudo apt-get install libatlas-base-dev
 
-sudo apt-get install python-pyaudio python3-pyaudio sox -y
+sudo apt-get install python-pyaudio python3-pyaudio sox
 
 # install prerequisite 
-sudo apt-get install libpcre3-dev -y
+sudo apt-get install libpcre3-dev
 
 sudo pip install --upgrade pip
 sudo pip3 install --upgrade pip
@@ -29,9 +29,11 @@ sudo pip3 install --upgrade pip
 sudo pip install -r requirements.txt
 sudo pip3 install -r requirements.txt
 
+sudo -H pip3 install --ignore-installed pyaudio
+
 # http://weegreenblobbie.com/?p=263
 # download swig 3.0.12
-wget -O "swig-3.0.12.tar.gz" "https://downloads.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fswig%2Ffiles%2Fswig%2Fswig-3.0.12%2Fswig-3.0.12.tar.gz%2Fdownload&ts=1486782132&use_mirror=superb-sea2"
+wget -O "swig-3.0.12.tar.gz" "https://downloads.sourceforge.net/project/swig/swig/swig-3.0.12/swig-3.0.12.tar.gz?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fswig%2Ffiles%2Fswig%2Fswig-3.0.12%2Fswig-3.0.12.tar.gz%2Fdownload&ts=1486782132&use_mirror=superb-sea2" --no-check-certificate
 
 # extract and configure
 tar xf swig-3.0.12.tar.gz
@@ -83,7 +85,7 @@ cd orangepi_PC_gpio_pyH3/examples/RgbLed
 cp rgbControlClass.py $ARTEX_PATH
 cd ../../..
 
-#apt-get install libasound2-dev memcached python-pip python-alsaaudio vlc -y
+#apt-get install libasound2-dev memcached python-pip python-alsaaudio vlc
 
 sudo chmod +x $ARTEX_PATH/Artex
 
