@@ -5,11 +5,9 @@ Please follow the steps here for some sound problems when using Artex for Orange
 https://github.com/muminkoykiran/ProjectArtex/wiki/Audio-Setup
 
 For Installation:
-
+``` BASH
 cd /opt/
-
 git clone https://github.com/muminkoykiran/ProjectArtex.git
-
 cd /opt/ProjectArtex
-
 ./setup.sh
+```
