@@ -3,23 +3,25 @@
 export ARTEX_PATH=/opt/ProjectArtex
 #export ARTEX_PATH=/home/$USER/ProjectArtex
 
-sudo apt-get install python-dev
-sudo apt-get install python3-dev
+sudo apt update
 
-sudo apt-get install python-pip 
-sudo apt-get install python3-pip
-sudo apt-get install python3-setuptools
-sudo apt-get install vlc
-sudo apt-get install flac
+sudo apt-get install python-dev -y
+sudo apt-get install python3-dev -y
 
-sudo apt-get install portaudio19-dev python-all-dev python3-all-dev
+sudo apt-get install python-pip  -y
+sudo apt-get install python3-pip -y
+sudo apt-get install python3-setuptools -y
+sudo apt-get install vlc -y
+sudo apt-get install flac -y
 
-sudo apt-get install libatlas-base-dev
+sudo apt-get install portaudio19-dev python-all-dev python3-all-dev -y
 
-sudo apt-get install python-pyaudio python3-pyaudio sox
+sudo apt-get install libatlas-base-dev -y
+
+sudo apt-get install python-pyaudio python3-pyaudio sox -y
 
 # install prerequisite 
-sudo apt-get install libpcre3-dev
+sudo apt-get install libpcre3-dev -y
 
 sudo pip install --upgrade pip
 sudo pip3 install --upgrade pip
