@@ -23,6 +23,12 @@ sudo apt-get install python-pyaudio python3-pyaudio sox
 # install prerequisite 
 sudo apt-get install libpcre3-dev
 
+ln -s /usr/lib/arm-linux-gnueabihf/libfreetype.so.6 /usr/lib/
+ln -s /usr/lib/arm-linux-gnueabihf/libjpeg.so.8 /usr/lib/
+ln -s /usr/lib/arm-linux-gnueabihf/libz.so /usr/lib/
+
+sudo apt-get install libjpeg-dev
+
 sudo pip install --upgrade pip
 sudo pip3 install --upgrade pip
 
@@ -30,6 +36,9 @@ sudo pip install -r requirements.txt
 sudo pip3 install -r requirements.txt
 
 sudo -H pip3 install --ignore-installed pyaudio
+
+pip install --no-cache-dir -I pillow
+pip3 install --no-cache-dir -I pillow
 
 # http://weegreenblobbie.com/?p=263
 # download swig 3.0.12
