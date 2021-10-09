@@ -6,8 +6,4 @@ pyaudio
 python-vlc
 pyA20
 cookiejar
-Adafruit_GPIO
-Adafruit_BBIO
-Adafruit_SSD1306
 Pillow==2.3
-
