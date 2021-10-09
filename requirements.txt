@@ -6,4 +6,3 @@ pyaudio
 python-vlc
 pyA20
 cookiejar
-Pillow==2.3
