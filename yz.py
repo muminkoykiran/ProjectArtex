@@ -102,7 +102,7 @@ except FileNotFoundError:
 except http.cookiejar.LoadError:
     cookieJar.save()
 
-#requests.packages.urllib3.disable_warnings()
+requests.packages.urllib3.disable_warnings()
 s = requests.Session()
 #s.verify = dir_path + "/certificate.crt"
 s.cookies = cookieJar
@@ -184,6 +184,7 @@ def Login():
     if UsePins: led.off()
 
 def SendMessage(Message="", Talking=True, Listening=True):
+    global BaseUrl
     logger.debug("SendMessage Calisti, Gonderilecek Mesaj: '" + Message + "'")
     payload = {'msg': Message, 'pltfrm': 'orangepi'}
     output = Web_Request(BaseUrl + 'message.php', payload, True)
@@ -206,7 +207,7 @@ def StartBackground(Status, PythonCode = None):
 
 firstStart = True
 def ShowAll(Talking=True, Listening=True):
-    global GlobalLastMessageTime, firstStart
+    global BaseUrl, GlobalLastMessageTime, firstStart
     logger.debug('ShowAll Calisti')
     payload = {'all': '1'}
     output = Web_Request(BaseUrl + 'message.php', payload, True)
@@ -266,7 +267,7 @@ player = vlc.MediaPlayer()
 
 def Talk(VoiceData, VoiceApi):
     try:
-        global player
+        global BaseUrl, UsePins, cookieJar, dir_path, player, s
         hash_object = sha1(b''+VoiceData.encode('utf-8').strip())
         hash_dig = hash_object.hexdigest()
         ses_path = dir_path + "/sesler/" + VoiceApi + "/"
@@ -280,6 +281,7 @@ def Talk(VoiceData, VoiceApi):
         if(not os.path.isfile(file_path)):
             logger.debug("Ses dosyası bulunamadı, indiriliyor..")
             req = s.post(BaseUrl + "main?sayfa=ses&ses=" + VoiceData + "&pltfrm=csharp&ses_api=" + VoiceApi, stream=True, verify=False)
+            cookieJar.save()
             with open(file_path, 'wb') as f:
                 shutil.copyfileobj(req.raw, f)
         if UsePins: led.blue()
@@ -290,7 +292,7 @@ def Talk(VoiceData, VoiceApi):
         logger.error(ex)
 
 def IsSpeaking(Listening=True):
-    global player
+    global player, UsePins
     time.sleep(0.5)
     while(player.is_playing() == True):
         pass
@@ -303,7 +305,7 @@ def IsSpeaking(Listening=True):
 
 def CheckNotifications():
     while True:
-        global GlobalLastMessageTime
+        global BaseUrl, GlobalLastMessageTime
         time.sleep(1)
         #logger.debug('CheckNotifications Calisti')
         payload = {'sayfa': 'CheckNotifications'}
@@ -352,18 +354,21 @@ def CheckNotifications():
             pass
 
 def DING():
+    global UsePins
     call(["amixer", "sset", "Lineout volume control", "50%"])
     if UsePins: led.cyan()
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
     call(["amixer", "sset", "Lineout volume control", "80%"])
 
 def DONG():
+    global UsePins
     call(["amixer", "sset", "Lineout volume control", "50%"])
     if UsePins: led.red()
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     call(["amixer", "sset", "Lineout volume control", "80%"])
 
 def Triggered():
+    global UsePins
     try:
         logger.debug("Bir şeyler söyle!")
         with m as source: audio = r.listen(source, timeout=3)
