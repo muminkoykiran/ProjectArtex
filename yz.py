@@ -15,6 +15,7 @@ import os
 import vlc
 import logging
 from hashlib import sha1
+from subprocess import call
 
 CryptoClass = CryptoStuffClass.CryptoStuff()
 
@@ -117,7 +118,7 @@ def Web_Request(URL, Data, WantEncryption):
         else:
             payload = Data
 
-        req = s.post(URL, data=payload)
+        req = s.post(URL, data=payload, verify=False)
         cookieJar.save()
         req.raise_for_status()
 
@@ -186,7 +187,7 @@ def SendMessage(Message="", Talking=True, Listening=True):
     logger.debug("SendMessage Calisti, Gonderilecek Mesaj: '" + Message + "'")
     payload = {'msg': Message, 'pltfrm': 'orangepi'}
     output = Web_Request(BaseUrl + 'message.php', payload, True)
-    logger.debug('SendMessage Yanit Geldi -> ' + output)
+    logger.debug('SendMessage Yanit Geldi -> ' + str(output))
     ShowAll(Talking, Listening)
 
 def StartBackground(Status, PythonCode = None):
@@ -264,24 +265,29 @@ intance = vlc.Instance()
 player = vlc.MediaPlayer()
 
 def Talk(VoiceData, VoiceApi):
-    hash_object = sha1(b''+VoiceData.encode('utf-8').strip())
-    hash_dig = hash_object.hexdigest()
-    ses_path = dir_path + "/sesler/" + VoiceApi + "/"
+    try:
+        global player
+        hash_object = sha1(b''+VoiceData.encode('utf-8').strip())
+        hash_dig = hash_object.hexdigest()
+        ses_path = dir_path + "/sesler/" + VoiceApi + "/"
 
-    if(not os.path.exists(ses_path)):
-        logger.debug("Ses klasörü bulunamadı, oluşturuluyor..")
-        os.makedirs(ses_path)
+        if(not os.path.exists(ses_path)):
+            logger.debug("Ses klasörü bulunamadı, oluşturuluyor..")
+            os.makedirs(ses_path)
 
-    file_path = ses_path + hash_dig + ".mp3"
+        file_path = ses_path + hash_dig + ".mp3"
 
-    if(not os.path.isfile(file_path)):
-        logger.debug("Ses dosyası bulunamadı, indiriliyor..")
-        req = s.post(BaseUrl + "main?sayfa=ses&ses=" + VoiceData + "&pltfrm=csharp&ses_api=" + VoiceApi, stream=True)
-        with open(file_path, 'wb') as f:
-            shutil.copyfileobj(req.raw, f)
-    if UsePins: led.blue()
-    player.set_media(intance.media_new(file_path))
-    player.play()
+        if(not os.path.isfile(file_path)):
+            logger.debug("Ses dosyası bulunamadı, indiriliyor..")
+            req = s.post(BaseUrl + "main?sayfa=ses&ses=" + VoiceData + "&pltfrm=csharp&ses_api=" + VoiceApi, stream=True, verify=False)
+            with open(file_path, 'wb') as f:
+                shutil.copyfileobj(req.raw, f)
+        if UsePins: led.blue()
+        player.set_media(intance.media_new(file_path))
+        player.audio_set_volume(100)
+        player.play()
+    except Exception as ex:
+        logger.error(ex)
 
 def IsSpeaking(Listening=True):
     global player
@@ -336,21 +342,29 @@ def CheckNotifications():
                             ShowAll(Talking, Listening)
                     else:
                         GlobalLastMessageTime = LastMessageTime
-                except Exception as e:
-                    logger.error("bir hata oldu sanki json ile ilgili olabilir.")
+                except Exception as ex:
+                    logger.error(ex)
                     GetCryptionKey()
                     pass
-        except (RuntimeError, TypeError, NameError):
-            logger.error("bir hata oldu sanki :))")
+        except Exception as e:
+            logger.error(e)
             GetCryptionKey()
             pass
 
 def DING():
+    call(["amixer", "sset", "Lineout volume control", "50%"])
     if UsePins: led.cyan()
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
+    call(["amixer", "sset", "Lineout volume control", "80%"])
+
+def DONG():
+    call(["amixer", "sset", "Lineout volume control", "50%"])
+    if UsePins: led.red()
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
+    call(["amixer", "sset", "Lineout volume control", "80%"])
 
 def Triggered():
-    try:        
+    try:
         logger.debug("Bir şeyler söyle!")
         with m as source: audio = r.listen(source, timeout=3)
         if UsePins: led.yellow()
@@ -370,16 +384,13 @@ def Triggered():
                 SendMessage(data, True, True)
         except sr.UnknownValueError:
             logger.warning("Eyvah! Sesi yakalayamadım!")
-            if UsePins: led.red()
-            snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
+            DONG()
         except sr.RequestError as e:
             logger.error("Ah be! Google Ses Tanıma servisinden sonuç isteği yapılamadı; {}".format(e))
-            if UsePins: led.red()
-            snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
+            DONG()
     except sr.WaitTimeoutError:
         logger.warning("Zaman Aşımı Gerçekleşti")
-        if UsePins: led.red()
-        snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
+        DONG()
     if UsePins: led.off()
 
 def detect_callback():
