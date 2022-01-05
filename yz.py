@@ -108,9 +108,13 @@ s = requests.Session()
 s.cookies = cookieJar
 
 def Web_Request(URL, Data, WantEncryption):
+    global s, CryptionKey, cookieJar
+
+    out = None
+
     try:
-        global s, CryptionKey, cookieJar
         payload = None
+
         if(WantEncryption == True):
             payload = urlencode(Data, quote_via=quote_plus)
             sifrele = CryptoClass.encrypt(payload, CryptionKey)
@@ -122,13 +126,11 @@ def Web_Request(URL, Data, WantEncryption):
         cookieJar.save()
         req.raise_for_status()
 
-        out = None
         if(req.status_code == 200):
             out = req.text
             if(not out or out == ''):
                 out = None
 
-        return out
     except requests.exceptions.Timeout as e:
         logger.error("Timeout => " + str(e))
     except requests.exceptions.TooManyRedirects as e:
@@ -139,6 +141,8 @@ def Web_Request(URL, Data, WantEncryption):
         logger.error("RequestException => " + str(e))
     except Exception:
         logger.error("Fatal error in Web_Request", exc_info=True)
+    finally:
+        return out
 
 def GetCryptionKey():
     try:
@@ -187,7 +191,18 @@ def SendMessage(Message="", Talking=True, Listening=True):
     global BaseUrl
     logger.debug("SendMessage Calisti, Gonderilecek Mesaj: '" + Message + "'")
     payload = {'msg': Message, 'pltfrm': 'orangepi'}
-    output = Web_Request(BaseUrl + 'message.php', payload, True)
+    output = None
+
+    while True:
+        try:
+            output = Web_Request(BaseUrl + 'message.php', payload, True)
+
+            break
+        except Exception as ex:
+            time.sleep(0.5)
+            
+            logger.error(ex)
+    
     logger.debug('SendMessage Yanit Geldi -> ' + str(output))
     ShowAll(Talking, Listening)
 
@@ -298,8 +313,7 @@ def IsSpeaking(Listening=True):
         pass
     
     if(Listening == True):
-        DING()
-        Triggered()
+        detect_callback()
 
     if UsePins: led.off()
 
@@ -355,14 +369,14 @@ def CheckNotifications():
 
 def DING():
     global UsePins
-    call(["amixer", "sset", "Lineout volume control", "50%"])
+    call(["amixer", "sset", "Lineout volume control", "10%"])
     if UsePins: led.cyan()
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
     call(["amixer", "sset", "Lineout volume control", "80%"])
 
 def DONG():
     global UsePins
-    call(["amixer", "sset", "Lineout volume control", "50%"])
+    call(["amixer", "sset", "Lineout volume control", "10%"])
     if UsePins: led.red()
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     call(["amixer", "sset", "Lineout volume control", "80%"])
@@ -371,7 +385,7 @@ def Triggered():
     global UsePins
     try:
         logger.debug("Bir şeyler söyle!")
-        with m as source: audio = r.listen(source, timeout=3)
+        with m as source: audio = r.listen(source, timeout=4)
         if UsePins: led.yellow()
         logger.debug("Yakaladım! Şimdi sesi tanımaya çalışıyorum...")
         try:
@@ -403,8 +417,12 @@ def detect_callback():
     logger.debug("...")
     delete_last_lines()
 
+    #TriggeredThread = Thread(target = Triggered)
+    #TriggeredThread.start()
+
     DINGThread = Thread(target = DING)
     DINGThread.start()
+    
 
     Triggered()
 
